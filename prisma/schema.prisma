@@ -1,0 +1,470 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----------------------------------------------------
+// AUTENTICACIÓN Y USUARIOS
+// ----------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  COMERCIAL
+  CONSULTA
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         UserRole  @default(COMERCIAL)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relaciones
+  cuentasResponsable       Cuenta[]
+  oportunidadesResponsable Oportunidad[]
+  tareasResponsable        Tarea[]
+  actividades              Actividad[]
+  documentosSubidos        Documento[]
+  contratosResponsable     Contrato[]
+  onboardingsResponsable   OnboardingCliente[]
+  serviciosResponsable     ServicioCliente[]
+
+  @@map("users")
+}
+
+// ----------------------------------------------------
+// NÚCLEO CRM: CUENTAS Y CONTACTOS
+// ----------------------------------------------------
+
+model Cuenta {
+  id                  String    @id @default(cuid())
+  razonSocial         String
+  rut                 String?
+  tipo                String    @default("empresa") // empresa | persona
+  rubro               String?
+  sitioWeb            String?
+  origenLead          String?   // referido, linkedin, web, prospeccion, otro
+  etapa               String    @default("nuevo")
+  valorEstimado       Float?
+  responsableId       String?
+  responsable         User?     @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  notas               String?
+
+  // Onboarding / Estados de cuenta
+  estadoRiesgo        String?   @default("no_iniciado")
+  estadoDocumentacion String?   @default("no_iniciado")
+  estadoContrato      String?   @default("no_iniciado")
+  fechaAltaCliente    DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relaciones
+  afiliaciones        Afiliacion[]
+  actividades         Actividad[]
+  oportunidades       Oportunidad[]
+  tareas              Tarea[]
+  documentos          Documento[]
+  contratos           Contrato[]
+  onboardings         OnboardingCliente[]
+  servicios           ServicioCliente[]
+  propuestas          Propuesta[]
+
+  @@map("cuentas")
+}
+
+model Persona {
+  id                  String               @id @default(cuid())
+  nombre              String
+  cargo               String?
+  email               String?
+  telefono            String?
+  nota                String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Relaciones
+  afiliaciones        Afiliacion[]
+  contactosOportunidad ContactoOportunidad[]
+  actividades         Actividad[]
+  tareas              Tarea[]
+  firmantesContrato   FirmanteContrato[]
+
+  @@map("personas")
+}
+
+model Afiliacion {
+  id          String    @id @default(cuid())
+  cuentaId    String
+  cuenta      Cuenta    @relation(fields: [cuentaId], references: [id], onDelete: Cascade)
+  personaId   String
+  persona     Persona   @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  cargo       String?
+  esPrincipal Boolean   @default(false)
+  activa      Boolean   @default(true)
+  fechaInicio DateTime?
+  fechaFin    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([cuentaId, personaId])
+  @@map("afiliaciones")
+}
+
+// ----------------------------------------------------
+// OPORTUNIDADES Y GESTIÓN COMERCIAL
+// ----------------------------------------------------
+
+model Oportunidad {
+  id                  String               @id @default(cuid())
+  cuentaId            String
+  cuenta              Cuenta               @relation(fields: [cuentaId], references: [id], onDelete: Cascade)
+  nombre              String
+  descripcion         String?
+  etapa               String               @default("contacto_inicial")
+  estado              String               @default("abierta") // abierta, ganada, perdida, pausada
+  valorEstimado       Float?
+  moneda              String               @default("UF")
+  probabilidad        Int?                 @default(10)
+  responsableId       String?
+  responsable         User?                @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  fechaApertura       DateTime             @default(now())
+  fechaCierreEstimada DateTime?
+  fechaCierreReal     DateTime?
+  motivoPerdida       String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Relaciones
+  contactos           ContactoOportunidad[]
+  actividades         Actividad[]
+  tareas              Tarea[]
+  propuestas          Propuesta[]
+  documentos          Documento[]
+  contratos           Contrato[]
+  onboardings         OnboardingCliente[]
+
+  @@map("oportunidades")
+}
+
+model ContactoOportunidad {
+  id            String      @id @default(cuid())
+  oportunidadId String
+  oportunidad   Oportunidad @relation(fields: [oportunidadId], references: [id], onDelete: Cascade)
+  personaId     String
+  persona       Persona     @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  rol           String?     // Quien decide, quien firma, evaluador tecnico, etc.
+  esPrincipal   Boolean     @default(false)
+  notas         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([oportunidadId, personaId])
+  @@map("contactos_oportunidad")
+}
+
+model Actividad {
+  id               String       @id @default(cuid())
+  cuentaId         String
+  cuenta           Cuenta       @relation(fields: [cuentaId], references: [id], onDelete: Cascade)
+  oportunidadId    String?
+  oportunidad      Oportunidad? @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  personaId        String?
+  persona          Persona?     @relation(fields: [personaId], references: [id], onDelete: SetNull)
+  usuarioId        String?
+  usuario          User?        @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  responsable      String?      // Nombre histórico / snapshot
+  tipo             String       // llamada, reunion, email, whatsapp, nota, otro
+  descripcion      String
+  fechaRealizada   DateTime     @default(now())
+  proximoPaso      String?
+  fechaProximoPaso DateTime?
+  estadoPaso       String?      // pendiente, hecho
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("actividades")
+}
+
+model Tarea {
+  id               String       @id @default(cuid())
+  titulo           String
+  descripcion      String?
+  tipo             String       @default("seguimiento")
+  estado           String       @default("pendiente") // pendiente, en_proceso, completada, cancelada
+  prioridad        String       @default("media")     // baja, media, alta, critica
+  fechaVencimiento DateTime?
+  completadaEn     DateTime?
+  etapaRelacionada String?
+  cuentaId         String?
+  cuenta           Cuenta?      @relation(fields: [cuentaId], references: [id], onDelete: SetNull)
+  oportunidadId    String?
+  oportunidad      Oportunidad? @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  personaId        String?
+  persona          Persona?     @relation(fields: [personaId], references: [id], onDelete: SetNull)
+  responsableId    String?
+  responsable      User?        @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("tareas")
+}
+
+// ----------------------------------------------------
+// DOCUMENTOS Y CONTRATOS
+// ----------------------------------------------------
+
+model Documento {
+  id            String       @id @default(cuid())
+  nombre        String
+  tipo          String       // antecedentes_legales, tributarios, contrato, anexo, propuesta, otro
+  estado        String       @default("pendiente") // pendiente, recibido, aprobado, rechazado, archivado
+  rutaArchivo   String?
+  nombreArchivo String?
+  mimeType      String?
+  tamanoBytes   Int?
+  hashSha256    String?
+  version       Int          @default(1)
+  cuentaId      String?
+  cuenta        Cuenta?      @relation(fields: [cuentaId], references: [id], onDelete: SetNull)
+  oportunidadId String?
+  oportunidad   Oportunidad? @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  propuestaId   String?
+  propuesta     Propuesta?   @relation(fields: [propuestaId], references: [id], onDelete: SetNull)
+  contratoId    String?
+  contrato      Contrato?    @relation(fields: [contratoId], references: [id], onDelete: SetNull)
+  subidoPorId   String?
+  subidoPor     User?        @relation(fields: [subidoPorId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("documentos")
+}
+
+model Contrato {
+  id               String             @id @default(cuid())
+  numero           String?            @unique
+  nombre           String
+  tipo             String             @default("prestacion_servicios")
+  estado           String             @default("borrador") // borrador, enviado, en_revision, firmado, rechazado, vencido, cancelado
+  cuentaId         String
+  cuenta           Cuenta             @relation(fields: [cuentaId], references: [id], onDelete: Restrict)
+  oportunidadId    String?
+  oportunidad      Oportunidad?       @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  propuestaId      String?
+  propuesta        Propuesta?         @relation(fields: [propuestaId], references: [id], onDelete: SetNull)
+  responsableId    String?
+  responsable      User?              @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  fechaEnvio       DateTime?
+  fechaFirma       DateTime?
+  fechaVencimiento DateTime?
+  valor            Float?
+  moneda           String             @default("UF")
+  observaciones    String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relaciones
+  documentos       Documento[]
+  firmantes        FirmanteContrato[]
+  onboardings      OnboardingCliente[]
+  servicios        ServicioCliente[]
+
+  @@map("contratos")
+}
+
+model FirmanteContrato {
+  id          String   @id @default(cuid())
+  contratoId  String
+  contrato    Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  personaId   String?
+  persona     Persona? @relation(fields: [personaId], references: [id], onDelete: SetNull)
+  nombre      String
+  email       String?
+  cargo       String?
+  rol         String?
+  estadoFirma String   @default("pendiente") // pendiente, enviado, firmado, rechazado
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("firmantes_contrato")
+}
+
+// ----------------------------------------------------
+// ONBOARDING Y SERVICIOS CLIENTE
+// ----------------------------------------------------
+
+model OnboardingCliente {
+  id               String           @id @default(cuid())
+  cuentaId         String
+  cuenta           Cuenta           @relation(fields: [cuentaId], references: [id], onDelete: Restrict)
+  oportunidadId    String?
+  oportunidad      Oportunidad?     @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  contratoId       String?
+  contrato         Contrato?        @relation(fields: [contratoId], references: [id], onDelete: SetNull)
+  responsableId    String?
+  responsable      User?            @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  estado           String           @default("no_iniciado") // no_iniciado, en_proceso, bloqueado, completado, cancelado
+  fechaInicio      DateTime?
+  fechaObjetivoAlta DateTime?
+  fechaAltaReal    DateTime?
+  observaciones    String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  pasos            PasoOnboarding[]
+  servicios        ServicioCliente[]
+
+  @@map("onboardings_cliente")
+}
+
+model PasoOnboarding {
+  id               String            @id @default(cuid())
+  onboardingId     String
+  onboarding       OnboardingCliente @relation(fields: [onboardingId], references: [id], onDelete: Cascade)
+  titulo           String
+  descripcion      String?
+  estado           String            @default("pendiente") // pendiente, en_proceso, completado, bloqueado, no_aplica
+  orden            Int               @default(0)
+  fechaVencimiento DateTime?
+  completadoEn     DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@map("pasos_onboarding")
+}
+
+model ServicioCliente {
+  id                   String             @id @default(cuid())
+  cuentaId             String
+  cuenta               Cuenta             @relation(fields: [cuentaId], references: [id], onDelete: Restrict)
+  contratoId           String?
+  contrato             Contrato?          @relation(fields: [contratoId], references: [id], onDelete: SetNull)
+  propuestaId          String?
+  propuesta            Propuesta?         @relation(fields: [propuestaId], references: [id], onDelete: SetNull)
+  onboardingId         String?
+  onboarding           OnboardingCliente? @relation(fields: [onboardingId], references: [id], onDelete: SetNull)
+  responsableId        String?
+  responsable          User?              @relation(fields: [responsableId], references: [id], onDelete: SetNull)
+  estado               String             @default("activo") // activo, suspendido, terminado, en_revision
+  fechaInicio          DateTime?
+  fechaTermino         DateTime?
+  modalidadFacturacion String             @default("mensual")
+  moneda               String             @default("UF")
+  montoRecurrente      Float?
+  observaciones        String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@map("servicios_cliente")
+}
+
+// ----------------------------------------------------
+// PROPUESTAS Y CATÁLOGO
+// ----------------------------------------------------
+
+model GrupoPlan {
+  id        String   @id @default(cuid())
+  nombre    String
+  orden     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  planes    Plan[]
+
+  @@map("grupos_plan")
+}
+
+model Plan {
+  id             String    @id @default(cuid())
+  grupoId        String
+  grupo          GrupoPlan @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  nombre         String
+  detalle        String?
+  valorEmpresaUF Float
+  valorNaturalUF Float?
+  activo         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("planes")
+}
+
+model Servicio {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String?
+  tipo        String   @default("con_clave") // con_clave, express, otro
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("servicios")
+}
+
+model Propuesta {
+  id                   String               @id @default(cuid())
+  numero               String               @unique // Ej: 2026-001
+  cuentaId             String
+  cuenta               Cuenta               @relation(fields: [cuentaId], references: [id], onDelete: Restrict)
+  oportunidadId        String?
+  oportunidad          Oportunidad?         @relation(fields: [oportunidadId], references: [id], onDelete: SetNull)
+  clienteRazonSocial   String
+  clienteRut           String?
+  clienteGiro          String?
+  clienteContacto      String?
+  clienteEmail         String?
+  clienteTelefono      String?
+  vigenciaDias         Int                  @default(15)
+  estado               String               @default("borrador") // borrador, enviada, aceptada, rechazada
+  setupValorUF         Float                @default(0)
+  setupDescuentoPct    Float                @default(0)
+  mostrarPlanes        Boolean              @default(true)
+  mostrarServicios     Boolean              @default(true)
+  logoUrl              String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  // Snapshot de items
+  planes               PropuestaPlan[]
+  servicios            PropuestaServicio[]
+  documentos           Documento[]
+  contratos            Contrato[]
+  serviciosCliente     ServicioCliente[]
+
+  @@map("propuestas")
+}
+
+model PropuestaPlan {
+  id             String    @id @default(cuid())
+  propuestaId    String
+  propuesta      Propuesta @relation(fields: [propuestaId], references: [id], onDelete: Cascade)
+  grupoNombre    String
+  planNombre     String
+  detalle        String?
+  valorOriginal  Float
+  descuentoPct   Float     @default(0)
+  valorFinal     Float
+  createdAt      DateTime  @default(now())
+
+  @@map("propuestas_plan")
+}
+
+model PropuestaServicio {
+  id          String    @id @default(cuid())
+  propuestaId String
+  propuesta   Propuesta @relation(fields: [propuestaId], references: [id], onDelete: Cascade)
+  nombre      String
+  descripcion String?
+  tipo        String
+  createdAt   DateTime  @default(now())
+
+  @@map("propuestas_servicio")
+}

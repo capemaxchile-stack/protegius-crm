@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: protegius-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-protegius}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-protegius_secret_2026}
+      POSTGRES_DB: ${DB_NAME:-protegius_crm}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-protegius} -d ${DB_NAME:-protegius_crm}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: protegius-crm-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-protegius}:${DB_PASSWORD:-protegius_secret_2026}@postgres:5432/${DB_NAME:-protegius_crm}?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:-protegius_super_secret_jwt_key_32_bytes_min_length}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+    driver: local
