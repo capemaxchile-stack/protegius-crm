@@ -73,12 +73,12 @@ export default async function GestionesPage({
       {/* 2-Columns for Recent Gestiones & Pending Commitments */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Gestiones Recientes */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Gestiones sin Oportunidad ({gestionesSinOp.length})
             </h3>
-            <span className="text-[11px] text-slate-500">Últimas 20 interacciones</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Últimas 20 interacciones</span>
           </div>
 
           {gestionesSinOp.length === 0 ? (
@@ -88,29 +88,29 @@ export default async function GestionesPage({
               {gestionesSinOp.map((g) => (
                 <div
                   key={g.id}
-                  className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1.5"
+                  className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
                     <Link
                       href={`/cuentas/${g.cuentaId}`}
-                      className="font-semibold text-white hover:text-blue-400 flex items-center gap-1.5"
+                      className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5"
                     >
-                      <Building2 className="w-3.5 h-3.5 text-blue-500" />
+                      <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       <span>{g.cuenta.razonSocial}</span>
                     </Link>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
                       {formatearFecha(g.fechaRealizada)}
                     </span>
                   </div>
 
-                  <p className="text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/80">
-                    <span className="font-semibold text-blue-400 capitalize mr-1.5">[{g.tipo}]</span>
+                  <p className="text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800/80">
+                    <span className="font-bold text-blue-600 dark:text-blue-400 capitalize mr-1.5">[{g.tipo}]</span>
                     {g.descripcion}
                   </p>
 
                   {g.persona && (
-                    <p className="text-[10px] text-slate-500">
-                      Contacto: <span className="text-slate-300">{g.persona.nombre}</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Contacto: <span className="text-slate-800 dark:text-slate-300 font-semibold">{g.persona.nombre}</span>
                     </p>
                   )}
                 </div>
@@ -120,12 +120,12 @@ export default async function GestionesPage({
         </div>
 
         {/* Compromisos Pendientes */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Compromisos de Seguimiento ({compromisosSinOp.length})
             </h3>
-            <span className="text-[11px] text-slate-500">Tareas sin oportunidad formal</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Tareas sin oportunidad formal</span>
           </div>
 
           {compromisosSinOp.length === 0 ? (
@@ -135,12 +135,12 @@ export default async function GestionesPage({
               {compromisosSinOp.map((t) => (
                 <div
                   key={t.id}
-                  className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1.5"
+                  className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">{t.titulo}</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{t.titulo}</span>
                     {t.fechaVencimiento && (
-                      <span className="text-[11px] text-amber-400 font-medium flex items-center gap-1">
+                      <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatearFecha(t.fechaVencimiento)}
                       </span>
@@ -150,9 +150,9 @@ export default async function GestionesPage({
                   {t.cuenta && (
                     <Link
                       href={`/cuentas/${t.cuentaId}`}
-                      className="text-[11px] text-blue-400 hover:underline flex items-center gap-1"
+                      className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-semibold"
                     >
-                      <Building2 className="w-3 h-3 text-slate-500" />
+                      <Building2 className="w-3 h-3 text-slate-400" />
                       <span>{t.cuenta.razonSocial}</span>
                     </Link>
                   )}

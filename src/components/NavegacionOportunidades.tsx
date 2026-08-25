@@ -24,7 +24,7 @@ export function NavegacionOportunidades() {
   ];
 
   return (
-    <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto">
+    <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto shadow-sm transition-colors">
       {links.map((link) => {
         const isActive = pathname === link.href;
         const Icon = link.icon;
@@ -33,13 +33,13 @@ export function NavegacionOportunidades() {
           <Link
             key={link.name}
             href={link.href}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition whitespace-nowrap ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
               isActive
-                ? "bg-blue-600 text-white shadow-sm font-semibold"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
             }`}
           >
-            <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-slate-400"}`} />
+            <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-slate-400 dark:text-slate-400"}`} />
             <span>{link.name}</span>
           </Link>
         );

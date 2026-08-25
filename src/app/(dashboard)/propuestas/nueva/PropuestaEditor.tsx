@@ -224,7 +224,7 @@ export function PropuestaEditor({
   return (
     <form action={formAction} className="space-y-6">
       {state?.error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-xs font-medium">
+        <div className="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl text-rose-700 dark:text-rose-400 text-xs font-bold">
           {state.error}
         </div>
       )}
@@ -256,22 +256,22 @@ export function PropuestaEditor({
         {/* Left 2 Cols: Client & Items Selection */}
         <div className="lg:col-span-2 space-y-6">
           {/* 1. Selección de Cuenta y Oportunidad */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-              <Building2 className="w-4 h-4 text-blue-400" />
-              <h2 className="text-sm font-semibold text-white">1. Empresa & Negocio Destinatario</h2>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">1. Empresa & Negocio Destinatario</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Empresa / Cliente <span className="text-rose-400">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Empresa / Cliente <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={cuentaId}
                   onChange={(e) => handleSelectCuenta(e.target.value)}
                   required
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">— Seleccionar cliente —</option>
                   {cuentas.map((c) => (
@@ -283,13 +283,13 @@ export function PropuestaEditor({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Oportunidad Comercial Asociada
                 </label>
                 <select
                   value={oportunidadId}
                   onChange={(e) => setOportunidadId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">— Ninguna / Cotización General —</option>
                   {cuentaSeleccionada?.oportunidades.map((op) => (
@@ -302,64 +302,64 @@ export function PropuestaEditor({
             </div>
 
             {/* Datos de contacto que aparecerán en la propuesta */}
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3">
+              <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Datos de Membrete en la Cotización
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Razón Social</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">Razón Social</label>
                   <input
                     type="text"
                     value={razonSocial}
                     onChange={(e) => setRazonSocial(e.target.value)}
                     required
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">RUT</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">RUT</label>
                   <input
                     type="text"
                     value={rut}
                     onChange={(e) => setRut(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Giro / Rubro</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">Giro / Rubro</label>
                   <input
                     type="text"
                     value={giro}
                     onChange={(e) => setGiro(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Atención a (Contacto)</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">Atención a (Contacto)</label>
                   <input
                     type="text"
                     value={contacto}
                     onChange={(e) => setContacto(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Email</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Teléfono</label>
+                  <label className="block text-slate-600 dark:text-slate-400 text-[11px] font-semibold mb-1">Teléfono</label>
                   <input
                     type="text"
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white font-medium"
                   />
                 </div>
               </div>
@@ -367,19 +367,19 @@ export function PropuestaEditor({
           </div>
 
           {/* 2. Selección de Planes del Catálogo */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-400" />
-                <h2 className="text-sm font-semibold text-white">2. Planes y Suscripciones (en UF)</h2>
+                <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">2. Planes y Suscripciones (en UF)</h2>
               </div>
-              <span className="text-[11px] text-slate-400">Selecciona los planes a cotizar</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Selecciona los planes a cotizar</span>
             </div>
 
             <div className="space-y-4">
               {gruposPlan.map((grupo) => (
                 <div key={grupo.id} className="space-y-2">
-                  <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                     {grupo.nombre}
                   </h3>
 
@@ -392,8 +392,8 @@ export function PropuestaEditor({
                           key={plan.id}
                           className={`p-3 rounded-xl border text-xs transition duration-150 ${
                             selected
-                              ? "bg-slate-950 border-emerald-500/50 shadow-md"
-                              : "bg-slate-950/40 border-slate-800 hover:border-slate-700"
+                              ? "bg-emerald-50/60 dark:bg-slate-950 border-emerald-300 dark:border-emerald-500/50 shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-blue-500"
                           }`}
                         >
                           <div
@@ -401,16 +401,16 @@ export function PropuestaEditor({
                             onClick={() => handleTogglePlan(grupo.nombre, plan)}
                           >
                             {selected ? (
-                              <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                              <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                             ) : (
-                              <Square className="w-4 h-4 text-slate-600 shrink-0 mt-0.5" />
+                              <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
-                              <p className="font-semibold text-white">{plan.nombre}</p>
+                              <p className="font-bold text-slate-900 dark:text-white">{plan.nombre}</p>
                               {plan.detalle && (
-                                <p className="text-[11px] text-slate-400 mt-0.5">{plan.detalle}</p>
+                                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">{plan.detalle}</p>
                               )}
-                              <p className="font-bold text-emerald-400 text-xs mt-1">
+                              <p className="font-black text-emerald-600 dark:text-emerald-400 text-xs mt-1">
                                 {formatearUF(plan.valorEmpresaUF)} / mes
                               </p>
                             </div>
@@ -418,8 +418,8 @@ export function PropuestaEditor({
 
                           {/* Controls when selected: custom discount */}
                           {selected && (
-                            <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                              <span className="text-[10px] text-slate-400">Descuento aplicado:</span>
+                            <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold">Descuento aplicado:</span>
                               <div className="flex items-center gap-1">
                                 <input
                                   type="number"
@@ -429,11 +429,11 @@ export function PropuestaEditor({
                                   onChange={(e) =>
                                     handleDescuentoPlan(plan.id, parseFloat(e.target.value) || 0)
                                   }
-                                  className="w-14 px-2 py-0.5 bg-slate-900 border border-slate-700 rounded text-right text-xs text-white"
+                                  className="w-14 px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-right text-xs text-slate-900 dark:text-white font-bold"
                                 />
-                                <span className="text-slate-400 text-xs">%</span>
+                                <span className="text-slate-500 dark:text-slate-400 text-xs">%</span>
                               </div>
-                              <span className="font-bold text-white text-xs">
+                              <span className="font-black text-slate-900 dark:text-white text-xs">
                                 = {formatearUF(selected.valorFinal)}
                               </span>
                             </div>
@@ -448,13 +448,13 @@ export function PropuestaEditor({
           </div>
 
           {/* 3. Servicios Incluidos en el Alcance */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                <h2 className="text-sm font-semibold text-white">3. Alcance de Servicios Incluidos</h2>
+                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">3. Alcance de Servicios Incluidos</h2>
               </div>
-              <span className="text-[11px] text-slate-400">Funcionalidades descritas en la propuesta</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Funcionalidades descritas en la propuesta</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -467,20 +467,20 @@ export function PropuestaEditor({
                     onClick={() => handleToggleServicio(serv)}
                     className={`p-3 rounded-xl border text-xs cursor-pointer transition ${
                       isSelected
-                        ? "bg-slate-950 border-indigo-500/50 shadow-sm"
-                        : "bg-slate-950/40 border-slate-800 hover:border-slate-700"
+                        ? "bg-indigo-50/60 dark:bg-slate-950 border-indigo-300 dark:border-indigo-500/50 shadow-sm"
+                        : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-blue-500"
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                        <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-600 shrink-0 mt-0.5" />
+                        <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                       )}
                       <div>
-                        <p className="font-semibold text-white">{serv.nombre}</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{serv.nombre}</p>
                         {serv.descripcion && (
-                          <p className="text-[11px] text-slate-400 mt-1">{serv.descripcion}</p>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{serv.descripcion}</p>
                         )}
                       </div>
                     </div>
@@ -493,94 +493,94 @@ export function PropuestaEditor({
 
         {/* Right Col: Summary & Calculations */}
         <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 sticky top-6">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-              <Calculator className="w-4 h-4 text-blue-400" />
-              <h2 className="text-sm font-semibold text-white">Resumen Económico (en UF)</h2>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4 sticky top-6">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <Calculator className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Resumen Económico (en UF)</h2>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Vigencia de la oferta</label>
+                <label className="block text-slate-700 dark:text-slate-400 font-semibold mb-1">Vigencia de la oferta</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     min="1"
                     value={vigenciaDias}
                     onChange={(e) => setVigenciaDias(parseInt(e.target.value, 10) || 15)}
-                    className="w-20 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-semibold text-xs"
+                    className="w-20 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white font-bold text-xs"
                   />
-                  <span className="text-slate-400">días corridos</span>
+                  <span className="text-slate-600 dark:text-slate-400">días corridos</span>
                 </div>
               </div>
 
               {/* Setup fee */}
-              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider block">
                   Costo de Habilitación / Setup (Único)
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">Valor Setup (UF)</label>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold block mb-1">Valor Setup (UF)</label>
                     <input
                       type="number"
                       step="0.1"
                       min="0"
                       value={setupValorUF}
                       onChange={(e) => setSetupValorUF(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-white font-bold"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">Descuento (%)</label>
+                    <label className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold block mb-1">Descuento (%)</label>
                     <input
                       type="number"
                       min="0"
                       max="100"
                       value={setupDescuentoPct}
                       onChange={(e) => setSetupDescuentoPct(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs text-white"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-white font-bold"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Itemized summary */}
-              <div className="pt-2 border-t border-slate-800 space-y-2 text-slate-300">
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 text-slate-700 dark:text-slate-300 font-medium">
                 <div className="flex justify-between">
                   <span>Planes ({planesSeleccionados.length} seleccionados):</span>
-                  <span>{formatearUF(totalPlanesOriginalUF)}</span>
+                  <span className="font-bold">{formatearUF(totalPlanesOriginalUF)}</span>
                 </div>
 
                 {ahorroPlanesUF > 0 && (
-                  <div className="flex justify-between text-emerald-400">
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
                     <span>Descuento en planes:</span>
                     <span>- {formatearUF(ahorroPlanesUF)}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between font-semibold text-white">
+                <div className="flex justify-between font-bold text-slate-900 dark:text-white text-xs">
                   <span>Subtotal Mensual:</span>
                   <span>{formatearUF(totalPlanesFinalUF)}</span>
                 </div>
 
                 {setupFinalUF > 0 && (
-                  <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-800/80">
+                  <div className="flex justify-between text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800/80">
                     <span>Habilitación / Setup:</span>
-                    <span>{formatearUF(setupFinalUF)}</span>
+                    <span className="font-semibold">{formatearUF(setupFinalUF)}</span>
                   </div>
                 )}
               </div>
 
               {/* Total Final */}
-              <div className="mt-4 p-4 bg-blue-600/10 border border-blue-500/30 rounded-xl">
-                <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider block">
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-600/10 border border-blue-200 dark:border-blue-500/30 rounded-xl">
+                <span className="text-[11px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider block">
                   Total Primer Mes + Setup
                 </span>
-                <p className="text-2xl font-black text-white tracking-tight mt-1">
+                <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
                   {formatearUF(granTotalUF)}
                 </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
                   Recurrente mensual posterior: {formatearUF(totalPlanesFinalUF)}
                 </p>
               </div>
@@ -589,7 +589,7 @@ export function PropuestaEditor({
                 <SubmitButton />
                 <Link
                   href="/propuestas"
-                  className="w-full py-2.5 text-center text-xs text-slate-400 hover:text-white rounded-xl bg-slate-800 hover:bg-slate-700 transition"
+                  className="w-full py-2.5 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   Cancelar
                 </Link>

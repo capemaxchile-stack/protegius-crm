@@ -12,7 +12,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md transition disabled:opacity-50"
+      className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
     >
       {pending ? "Guardando gestión..." : "Registrar Gestión Comercial"}
     </button>
@@ -50,26 +50,26 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
   const contactosDeCuenta = cuentaActual?.afiliaciones.map((a) => a.persona) || [];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5 transition-colors">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <PhoneCall className="w-4 h-4 text-blue-400" />
-          <h2 className="text-sm font-semibold text-white">Registro de Gestión Temprana</h2>
+          <PhoneCall className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Registro de Gestión Temprana</h2>
         </div>
-        <span className="text-[11px] text-slate-400">
+        <span className="text-[11px] text-slate-500 dark:text-slate-400">
           Para contactos y prospección previa a abrir una oportunidad
         </span>
       </div>
 
       {okMessage && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs flex items-center gap-2 font-medium animate-in fade-in duration-200">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-2 font-semibold animate-in fade-in duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>¡Gestión comercial registrada con éxito! El formulario ha sido limpiado.</span>
         </div>
       )}
 
       {state?.error && (
-        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-medium">
+        <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-semibold">
           {state.error}
         </div>
       )}
@@ -78,8 +78,8 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
         {/* A. Cuenta / Empresa */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Empresa / Prospecto</span>
             </label>
             <button
@@ -88,7 +88,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
                 setModoNuevaCuenta(!modoNuevaCuenta);
                 setCuentaSeleccionadaId("");
               }}
-              className="text-[11px] text-blue-400 hover:underline"
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-bold"
             >
               {modoNuevaCuenta ? "Seleccionar cuenta existente" : "+ Ingresar empresa nueva"}
             </button>
@@ -99,7 +99,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
               name="cuentaId"
               value={cuentaSeleccionadaId}
               onChange={(e) => setCuentaSeleccionadaId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">— Seleccionar empresa de la lista —</option>
               {cuentas.map((c) => (
@@ -114,7 +114,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
               type="text"
               required
               placeholder="Nombre de la nueva empresa o prospecto"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           )}
         </div>
@@ -122,14 +122,14 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
         {/* B. Contacto */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-emerald-400" />
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Contacto</span>
             </label>
             <button
               type="button"
               onClick={() => setModoNuevoContacto(!modoNuevoContacto)}
-              className="text-[11px] text-emerald-400 hover:underline"
+              className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
             >
               {modoNuevoContacto ? "Seleccionar contacto existente" : "+ Ingresar contacto nuevo"}
             </button>
@@ -138,7 +138,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
           {!modoNuevoContacto && !modoNuevaCuenta && contactosDeCuenta.length > 0 ? (
             <select
               name="personaId"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">— Seleccionar contacto —</option>
               {contactosDeCuenta.map((p) => (
@@ -148,13 +148,13 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
               ))}
             </select>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
               <div>
                 <input
                   name="nuevoContactoNombre"
                   type="text"
                   placeholder="Nombre del contacto (opcional)"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -162,7 +162,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
                   name="nuevoContactoCargo"
                   type="text"
                   placeholder="Cargo"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -170,7 +170,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
                   name="nuevoContactoEmail"
                   type="email"
                   placeholder="Correo electrónico"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -178,7 +178,7 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
                   name="nuevoContactoTelefono"
                   type="text"
                   placeholder="Teléfono / WhatsApp"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -189,13 +189,13 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Tipo de Contacto
               </label>
               <select
                 name="tipoActividad"
                 defaultValue="llamada"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 {TIPOS_ACTIVIDAD.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -206,22 +206,22 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                ¿Qué se conversó o coordinó? <span className="text-rose-400">*</span>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                ¿Qué se conversó o coordinó? <span className="text-rose-500">*</span>
               </label>
               <input
                 name="descripcionActividad"
                 type="text"
                 required
                 placeholder="Ej: Llamado de presentación, interesado en informe comercial con clave..."
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* D. Compromiso / Tarea de Seguimiento */}
-        <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3">
           <div className="flex items-center gap-2">
             <input
               id="crearTarea"
@@ -229,9 +229,9 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
               type="checkbox"
               checked={crearTarea}
               onChange={(e) => setCrearTarea(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-800 bg-slate-900 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500"
             />
-            <label htmlFor="crearTarea" className="text-xs font-semibold text-slate-200">
+            <label htmlFor="crearTarea" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Crear compromiso o tarea de seguimiento
             </label>
           </div>
@@ -239,21 +239,21 @@ export function GestionTempranaForm({ cuentas, resetKey, okMessage }: GestionTem
           {crearTarea && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               <div className="sm:col-span-2">
-                <label className="block text-[11px] text-slate-400 mb-1">Próxima acción</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Próxima acción</label>
                 <input
                   name="tituloTarea"
                   type="text"
                   placeholder="Ej: Volver a llamar el jueves / Enviar catálogo"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Fecha de vencimiento</label>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Fecha de vencimiento</label>
                 <input
                   name="fechaVencimientoTarea"
                   type="date"
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>

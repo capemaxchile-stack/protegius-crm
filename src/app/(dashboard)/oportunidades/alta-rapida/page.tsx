@@ -38,177 +38,177 @@ export default function AltaRapidaPage() {
 
       <div>
         <div className="flex items-center gap-2">
-          <Zap className="w-5 h-5 text-amber-400" />
-          <h1 className="text-xl font-bold text-white tracking-tight">Alta Rápida Comercial</h1>
+          <Zap className="w-5 h-5 text-amber-500" />
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Alta Rápida Comercial</h1>
         </div>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
           Formulario único para cargar Empresa + Contacto + Oportunidad en UF + Actividad + Próximo Compromiso.
         </p>
       </div>
 
       {state?.error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-xs font-medium">
+        <div className="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl text-rose-700 dark:text-rose-400 text-xs font-bold">
           {state.error}
         </div>
       )}
 
       <form action={formAction} className="space-y-6">
         {/* 1. Empresa */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-            <Building2 className="w-4 h-4 text-blue-400" />
-            <h2 className="text-sm font-semibold text-white">1. Empresa / Prospecto</h2>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">1. Empresa / Prospecto</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Razón Social <span className="text-rose-400">*</span>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Razón Social <span className="text-rose-500">*</span>
               </label>
               <input
                 name="razonSocial"
                 type="text"
                 required
                 placeholder="Ej: Inversiones Los Alerces SpA"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 RUT (validado Módulo 11)
               </label>
               <input
                 name="rut"
                 type="text"
                 placeholder="Ej: 76.543.210-K"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* 2. Contacto */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-            <UserPlus className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-sm font-semibold text-white">2. Contacto Principal (Opcional)</h2>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">2. Contacto Principal (Opcional)</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Nombre</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre</label>
               <input
                 name="contactoNombre"
                 type="text"
                 placeholder="Ej: Rodrigo Bucarey"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Cargo</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cargo</label>
               <input
                 name="contactoCargo"
                 type="text"
                 placeholder="Ej: Gerente General"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Email</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
               <input
                 name="contactoEmail"
                 type="email"
                 placeholder="rodrigo@empresa.cl"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Teléfono / WhatsApp</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Teléfono / WhatsApp</label>
               <input
                 name="contactoTelefono"
                 type="text"
                 placeholder="+56 9 1234 5678"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* 3. Oportunidad en UF */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-            <TrendingUp className="w-4 h-4 text-blue-400" />
-            <h2 className="text-sm font-semibold text-white">3. Oportunidad Comercial</h2>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">3. Oportunidad Comercial</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Nombre del Negocio <span className="text-rose-400">*</span>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Nombre del Negocio <span className="text-rose-500">*</span>
               </label>
               <input
                 name="opNombre"
                 type="text"
                 required
                 placeholder="Ej: Contratación Plan Corporativo 2026"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Valor Estimado (UF)</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Valor Estimado (UF)</label>
               <input
                 name="opValorEstimado"
                 type="number"
                 step="0.1"
                 placeholder="Ej: 18.5"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* 4. Actividad Inicial y Tarea */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-            <PhoneCall className="w-4 h-4 text-indigo-400" />
-            <h2 className="text-sm font-semibold text-white">4. Gestión Inicial y Compromiso</h2>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <PhoneCall className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">4. Gestión Inicial y Compromiso</h2>
           </div>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 ¿Qué se conversó en el primer contacto?
               </label>
               <input
                 name="actDescripcion"
                 type="text"
                 placeholder="Ej: Reunión inicial, interesado en due diligence y validación tributaria..."
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Próximo Compromiso / Tarea</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Próximo Compromiso / Tarea</label>
                 <input
                   name="tareaTitulo"
                   type="text"
                   placeholder="Ej: Enviar propuesta formal"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Fecha de Compromiso</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Fecha de Compromiso</label>
                 <input
                   name="tareaFechaVencimiento"
                   type="date"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function AltaRapidaPage() {
         <div className="flex items-center justify-end gap-3 pt-2">
           <Link
             href="/oportunidades"
-            className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition"
+            className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition"
           >
             Cancelar
           </Link>

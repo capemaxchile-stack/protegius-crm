@@ -79,20 +79,20 @@ export default async function CuentaDetallePage({
         <div className="flex items-center gap-3">
           <Link
             href="/cuentas"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white shadow-sm transition"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-white tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                 {cuenta.razonSocial}
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
                 {etapaObj?.label || cuenta.etapa}
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-mono mt-0.5">
               RUT: {cuenta.rut ? formatearRUT(cuenta.rut) : "Sin registrar"} · Rubro: {cuenta.rubro || "General"}
             </p>
           </div>
@@ -105,7 +105,7 @@ export default async function CuentaDetallePage({
           />
           <Link
             href={`/cuentas/${cuenta.id}/editar`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 shadow-sm transition"
           >
             <Edit className="w-3.5 h-3.5" />
             <span>Editar Datos</span>
@@ -118,40 +118,40 @@ export default async function CuentaDetallePage({
         {/* Left 2 Cols: Details, Contacts & Deals */}
         <div className="lg:col-span-2 space-y-6">
           {/* Card 1: Informacion General */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
               Información Comercial
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
               <div>
-                <span className="text-slate-500 block">Responsable Asignado</span>
-                <span className="font-medium text-white">{cuenta.responsable?.name || "Sin asignar"}</span>
+                <span className="text-slate-500 dark:text-slate-400 block font-medium">Responsable Asignado</span>
+                <span className="font-bold text-slate-900 dark:text-white">{cuenta.responsable?.name || "Sin asignar"}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">Sitio Web</span>
+                <span className="text-slate-500 dark:text-slate-400 block font-medium">Sitio Web</span>
                 {cuenta.sitioWeb ? (
                   <a
                     href={cuenta.sitioWeb.startsWith("http") ? cuenta.sitioWeb : `https://${cuenta.sitioWeb}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-medium text-blue-400 hover:underline truncate block"
+                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline truncate block"
                   >
                     {cuenta.sitioWeb}
                   </a>
                 ) : (
-                  <span className="text-slate-500">—</span>
+                  <span className="text-slate-400 italic">—</span>
                 )}
               </div>
               <div>
-                <span className="text-slate-500 block">Origen del Prospecto</span>
-                <span className="font-medium text-white capitalize">{cuenta.origenLead || "Directo"}</span>
+                <span className="text-slate-500 dark:text-slate-400 block font-medium">Origen del Prospecto</span>
+                <span className="font-bold text-slate-900 dark:text-white capitalize">{cuenta.origenLead || "Directo"}</span>
               </div>
             </div>
 
             {cuenta.notas && (
-              <div className="mt-4 pt-3 border-t border-slate-800 text-xs">
-                <span className="text-slate-500 block mb-1">Notas / Observaciones:</span>
-                <p className="text-slate-300 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 whitespace-pre-wrap">
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <span className="text-slate-500 dark:text-slate-400 block mb-1 font-semibold">Notas / Observaciones:</span>
+                <p className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 whitespace-pre-wrap">
                   {cuenta.notas}
                 </p>
               </div>
@@ -159,13 +159,13 @@ export default async function CuentaDetallePage({
           </div>
 
           {/* Card 2: Contactos de la Empresa */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Contactos Vinculados ({contactosActivos.length})
                 </h2>
-                <p className="text-[11px] text-slate-500">Personas asociadas a esta empresa</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Personas asociadas a esta empresa</p>
               </div>
               <ContactoModal
                 cuentaId={cuenta.id}
@@ -174,7 +174,7 @@ export default async function CuentaDetallePage({
             </div>
 
             {contactosActivos.length === 0 ? (
-              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl text-center text-slate-500 text-xs">
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-slate-400 text-xs">
                 Aún no hay contactos registrados. Usa el botón &quot;Agregar Contacto&quot;.
               </div>
             ) : (
@@ -184,22 +184,22 @@ export default async function CuentaDetallePage({
                     key={af.id}
                     className={`p-3.5 rounded-xl border text-xs relative ${
                       af.esPrincipal
-                        ? "bg-slate-950/90 border-blue-500/40 shadow-sm"
-                        : "bg-slate-950/50 border-slate-800"
+                        ? "bg-blue-50/50 dark:bg-slate-950/90 border-blue-200 dark:border-blue-500/40 shadow-sm"
+                        : "bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 shadow-sm"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="font-semibold text-white text-sm">{af.persona.nombre}</p>
+                          <p className="font-bold text-slate-900 dark:text-white text-sm">{af.persona.nombre}</p>
                           {af.esPrincipal && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                              <Star className="w-2.5 h-2.5 fill-amber-400" />
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                              <Star className="w-2.5 h-2.5 fill-amber-500 dark:fill-amber-400" />
                               Principal
                             </span>
                           )}
                         </div>
-                        <p className="text-slate-400 text-[11px] mt-0.5">
+                        <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5 font-medium">
                           {af.cargo || af.persona.cargo || "Sin cargo especificado"}
                         </p>
                       </div>
@@ -214,7 +214,7 @@ export default async function CuentaDetallePage({
                           <button
                             type="submit"
                             title="Marcar como contacto principal"
-                            className="text-[10px] text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-800"
+                            className="text-[10px] text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
                           >
                             Hacer Principal
                           </button>
@@ -222,24 +222,24 @@ export default async function CuentaDetallePage({
                       )}
                     </div>
 
-                    <div className="mt-3 space-y-1 text-slate-400 text-[11px]">
+                    <div className="mt-3 space-y-1 text-slate-600 dark:text-slate-400 text-[11px]">
                       {af.persona.email && (
                         <div className="flex items-center gap-2">
-                          <Mail className="w-3 h-3 text-slate-500 shrink-0" />
-                          <a href={`mailto:${af.persona.email}`} className="text-blue-400 hover:underline truncate">
+                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                          <a href={`mailto:${af.persona.email}`} className="text-blue-600 dark:text-blue-400 hover:underline truncate font-medium">
                             {af.persona.email}
                           </a>
                         </div>
                       )}
                       {af.persona.telefono && (
                         <div className="flex items-center gap-2">
-                          <Phone className="w-3 h-3 text-slate-500 shrink-0" />
+                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{af.persona.telefono}</span>
                         </div>
                       )}
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-end">
+                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end">
                       <form
                         action={async () => {
                           "use server";
@@ -248,7 +248,7 @@ export default async function CuentaDetallePage({
                       >
                         <button
                           type="submit"
-                          className="text-[10px] text-slate-500 hover:text-rose-400"
+                          className="text-[10px] text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 font-medium"
                         >
                           Desactivar vínculo
                         </button>
@@ -261,19 +261,19 @@ export default async function CuentaDetallePage({
 
             {/* Contactos inactivos colapsados */}
             {contactosInactivos.length > 0 && (
-              <details className="mt-4 pt-3 border-t border-slate-800 text-xs">
-                <summary className="cursor-pointer text-slate-500 hover:text-slate-300 font-medium">
+              <details className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <summary className="cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold">
                   Ver contactos anteriores / inactivos ({contactosInactivos.length})
                 </summary>
                 <div className="mt-3 space-y-2">
                   {contactosInactivos.map((af) => (
                     <div
                       key={af.id}
-                      className="p-2.5 rounded-xl bg-slate-950/30 border border-slate-800/60 flex items-center justify-between text-xs text-slate-400"
+                      className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/30 border border-slate-200 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400"
                     >
                       <div>
-                        <span className="font-medium text-slate-300">{af.persona.nombre}</span>
-                        <span className="text-[11px] text-slate-500 ml-2">({af.cargo || "Ex-contacto"})</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-300">{af.persona.nombre}</span>
+                        <span className="text-[11px] text-slate-400 ml-2">({af.cargo || "Ex-contacto"})</span>
                       </div>
                       <form
                         action={async () => {
@@ -283,7 +283,7 @@ export default async function CuentaDetallePage({
                       >
                         <button
                           type="submit"
-                          className="text-[11px] text-blue-400 hover:underline"
+                          className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-bold"
                         >
                           Reactivar
                         </button>
@@ -296,25 +296,25 @@ export default async function CuentaDetallePage({
           </div>
 
           {/* Card 3: Oportunidades Comerciales */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Oportunidades de Negocio ({cuenta.oportunidades.length})
                 </h2>
-                <p className="text-[11px] text-slate-500">Negocios y cotizaciones en curso</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Negocios y cotizaciones en curso</p>
               </div>
               <Link
                 href="/oportunidades/nueva"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 shadow-sm transition"
               >
-                <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <PlusCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Nueva Oportunidad</span>
               </Link>
             </div>
 
             {cuenta.oportunidades.length === 0 ? (
-              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl text-center text-slate-500 text-xs">
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-slate-400 text-xs">
                 No hay oportunidades registradas para esta cuenta.
               </div>
             ) : (
@@ -322,23 +322,23 @@ export default async function CuentaDetallePage({
                 {cuenta.oportunidades.map((op) => (
                   <div
                     key={op.id}
-                    className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between text-xs hover:border-slate-700 transition"
+                    className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs hover:border-blue-500 transition shadow-sm"
                   >
                     <div>
-                      <p className="font-semibold text-white">{op.nombre}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Etapa: <span className="text-slate-200 capitalize">{op.etapa.replace(/_/g, " ")}</span> · Resp: {op.responsable?.name || "Sin asignar"}
+                      <p className="font-bold text-slate-900 dark:text-white">{op.nombre}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Etapa: <span className="text-slate-800 dark:text-slate-200 capitalize font-medium">{op.etapa.replace(/_/g, " ")}</span> · Resp: {op.responsable?.name || "Sin asignar"}
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <p className="font-bold text-white text-sm">{formatearUF(op.valorEstimado)}</p>
-                      <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] font-medium ${
+                      <p className="font-black text-slate-900 dark:text-white text-sm">{formatearUF(op.valorEstimado)}</p>
+                      <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] font-bold border ${
                         op.estado === "ganada"
-                          ? "bg-emerald-500/10 text-emerald-400"
+                          ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                           : op.estado === "perdida"
-                          ? "bg-rose-500/10 text-rose-400"
-                          : "bg-blue-500/10 text-blue-400"
+                          ? "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20"
+                          : "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
                       }`}>
                         {op.estado.toUpperCase()}
                       </span>
@@ -353,27 +353,27 @@ export default async function CuentaDetallePage({
         {/* Right Col: Timeline & Compromisos */}
         <div className="space-y-6">
           {/* Card: Compromisos / Tareas */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Compromisos Pendientes ({cuenta.tareas.length})
             </h2>
 
             {cuenta.tareas.length === 0 ? (
-              <p className="text-slate-500 text-xs italic">No hay compromisos pendientes.</p>
+              <p className="text-slate-400 text-xs italic">No hay compromisos pendientes.</p>
             ) : (
               <div className="space-y-2">
                 {cuenta.tareas.map((t) => (
                   <div
                     key={t.id}
-                    className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1"
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-1"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{t.titulo}</span>
-                      <span className="text-[10px] text-amber-400 font-medium">
+                      <span className="font-bold text-slate-900 dark:text-white">{t.titulo}</span>
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
                         {formatearFecha(t.fechaVencimiento)}
                       </span>
                     </div>
-                    {t.descripcion && <p className="text-slate-400 text-[11px]">{t.descripcion}</p>}
+                    {t.descripcion && <p className="text-slate-600 dark:text-slate-400 text-[11px]">{t.descripcion}</p>}
                   </div>
                 ))}
               </div>
@@ -381,32 +381,32 @@ export default async function CuentaDetallePage({
           </div>
 
           {/* Card: Timeline de Actividades */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Historial de Interacciones ({cuenta.actividades.length})
             </h2>
 
             {cuenta.actividades.length === 0 ? (
-              <p className="text-slate-500 text-xs italic">No hay actividades registradas.</p>
+              <p className="text-slate-400 text-xs italic">No hay actividades registradas.</p>
             ) : (
-              <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-px before:bg-slate-800">
+              <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
                 {cuenta.actividades.map((act) => (
                   <div key={act.id} className="relative pl-7 text-xs space-y-1">
-                    <div className="absolute left-1.5 top-1 w-3 h-3 rounded-full bg-blue-500 border-2 border-slate-900" />
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span className="font-semibold text-blue-400 capitalize">{act.tipo}</span>
+                    <div className="absolute left-1.5 top-1 w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-500 border-2 border-white dark:border-slate-900" />
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                      <span className="font-bold text-blue-600 dark:text-blue-400 capitalize">{act.tipo}</span>
                       <span>{formatearFecha(act.fechaRealizada)}</span>
                     </div>
-                    <p className="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800/80">
                       {act.descripcion}
                     </p>
                     {act.persona && (
                       <p className="text-[10px] text-slate-500">
-                        Con: <span className="text-slate-300">{act.persona.nombre}</span>
+                        Con: <span className="text-slate-800 dark:text-slate-300 font-semibold">{act.persona.nombre}</span>
                       </p>
                     )}
                     {act.proximoPaso && (
-                      <div className="text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 p-2 rounded-lg mt-1">
+                      <div className="text-[11px] bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 p-2 rounded-lg mt-1 font-medium">
                         <strong>Próximo paso:</strong> {act.proximoPaso}{" "}
                         {act.fechaProximoPaso && `(${formatearFecha(act.fechaProximoPaso)})`}
                       </div>

@@ -148,15 +148,15 @@ export function ImportadorForm() {
         <div className="flex items-center gap-3">
           <Link
             href="/cuentas"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white shadow-sm transition"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Importador Masivo de Cuentas & Contactos
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
               Carga tu base de datos de empresas desde CSV o Excel con validación de RUT en un clic.
             </p>
           </div>
@@ -165,43 +165,43 @@ export function ImportadorForm() {
         <button
           type="button"
           onClick={descargarPlantillaEjemplo}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition shadow-sm"
+          className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 shadow-sm transition"
         >
-          <Download className="w-4 h-4 text-emerald-400" />
+          <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>Descargar Plantilla CSV</span>
         </button>
       </div>
 
       {/* Result feedback banner */}
       {resultado && (
-        <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl space-y-3 animate-in fade-in duration-200">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-3 animate-in fade-in duration-200">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-bold text-white text-sm">Resumen del Proceso de Importación</h3>
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm">Resumen del Proceso de Importación</h3>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <span className="text-slate-400 block">Procesadas</span>
-              <span className="font-bold text-white text-base">{resultado.totalProcesados}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800">
+              <span className="text-slate-500 dark:text-slate-400 block font-medium">Procesadas</span>
+              <span className="font-black text-slate-900 dark:text-white text-base">{resultado.totalProcesados}</span>
             </div>
-            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <span className="text-slate-400 block">Nuevas Cuentas</span>
-              <span className="font-bold text-emerald-400 text-base">{resultado.creados}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800">
+              <span className="text-slate-500 dark:text-slate-400 block font-medium">Nuevas Cuentas</span>
+              <span className="font-black text-emerald-600 dark:text-emerald-400 text-base">{resultado.creados}</span>
             </div>
-            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <span className="text-slate-400 block">Actualizadas</span>
-              <span className="font-bold text-blue-400 text-base">{resultado.actualizados}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800">
+              <span className="text-slate-500 dark:text-slate-400 block font-medium">Actualizadas</span>
+              <span className="font-black text-blue-600 dark:text-blue-400 text-base">{resultado.actualizados}</span>
             </div>
-            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <span className="text-slate-400 block">Con Observaciones</span>
-              <span className="font-bold text-rose-400 text-base">{resultado.fallidos}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800">
+              <span className="text-slate-500 dark:text-slate-400 block font-medium">Con Observaciones</span>
+              <span className="font-black text-rose-600 dark:text-rose-400 text-base">{resultado.fallidos}</span>
             </div>
           </div>
 
           {resultado.errores.length > 0 && (
-            <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-xs space-y-1">
-              <p className="font-semibold">Detalle de observaciones:</p>
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl text-rose-700 dark:text-rose-300 text-xs space-y-1">
+              <p className="font-bold">Detalle de observaciones:</p>
               <ul className="list-disc list-inside space-y-0.5 text-[11px]">
                 {resultado.errores.map((err, i) => (
                   <li key={i}>
@@ -215,7 +215,7 @@ export function ImportadorForm() {
           <div className="flex justify-end pt-1">
             <Link
               href="/cuentas"
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition"
             >
               Ver Directorio de Cuentas &rarr;
             </Link>
@@ -225,13 +225,13 @@ export function ImportadorForm() {
 
       {/* Input area: Paste or Upload file */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              <FileSpreadsheet className="w-4 h-4 text-blue-400" />
-              <h2 className="text-sm font-semibold text-white">Pegar Datos o Subir Archivo</h2>
+              <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Pegar Datos o Subir Archivo</h2>
             </div>
-            <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-medium">
+            <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold">
               <UploadCloud className="w-4 h-4" />
               <span>Seleccionar Archivo CSV</span>
               <input
@@ -249,38 +249,38 @@ export function ImportadorForm() {
               value={textoCSV}
               onChange={(e) => parsearEntrada(e.target.value)}
               placeholder={`Pega aquí tus datos copiados de Excel o CSV con este orden de columnas:\nRazón Social | RUT | Rubro | Nombre Contacto | Email | Teléfono | Cargo`}
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* Format instructions */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5 text-xs">
-          <h3 className="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3.5 text-xs">
+          <h3 className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
             Estructura de Columnas
           </h3>
 
-          <div className="space-y-2 text-slate-400 text-[11px]">
+          <div className="space-y-2 text-slate-600 dark:text-slate-400 text-[11px]">
             <p>
-              <strong className="text-white">1. Razón Social:</strong> Obligatoria. Nombre de la empresa.
+              <strong className="text-slate-900 dark:text-white">1. Razón Social:</strong> Obligatoria. Nombre de la empresa.
             </p>
             <p>
-              <strong className="text-white">2. RUT:</strong> Opcional. Se valida automáticamente con Módulo 11.
+              <strong className="text-slate-900 dark:text-white">2. RUT:</strong> Opcional. Se valida automáticamente con Módulo 11.
             </p>
             <p>
-              <strong className="text-white">3. Rubro:</strong> Opcional (ej: Minería, Logística, Retail).
+              <strong className="text-slate-900 dark:text-white">3. Rubro:</strong> Opcional (ej: Minería, Logística, Retail).
             </p>
             <p>
-              <strong className="text-white">4. Nombre Contacto:</strong> Opcional. Crea la persona vinculada.
+              <strong className="text-slate-900 dark:text-white">4. Nombre Contacto:</strong> Opcional. Crea la persona vinculada.
             </p>
             <p>
-              <strong className="text-white">5. Email:</strong> Correo del contacto.
+              <strong className="text-slate-900 dark:text-white">5. Email:</strong> Correo del contacto.
             </p>
             <p>
-              <strong className="text-white">6. Teléfono:</strong> Móvil o fijo de contacto.
+              <strong className="text-slate-900 dark:text-white">6. Teléfono:</strong> Móvil o fijo de contacto.
             </p>
             <p>
-              <strong className="text-white">7. Cargo:</strong> Cargo del contacto (ej: Gerente Comercial).
+              <strong className="text-slate-900 dark:text-white">7. Cargo:</strong> Cargo del contacto (ej: Gerente Comercial).
             </p>
           </div>
         </div>
@@ -288,14 +288,14 @@ export function ImportadorForm() {
 
       {/* Preview Table before importing */}
       {filasParseadas.length > 0 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Vista Previa ({filasParseadas.length} empresas detectadas)</span>
               </h2>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Revisa los datos antes de confirmar la importación a la base de datos.
               </p>
             </div>
@@ -313,7 +313,7 @@ export function ImportadorForm() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
+              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 font-semibold">
                 <tr>
                   <th className="py-2.5 px-3">#</th>
                   <th className="py-2.5 px-3">Razón Social</th>
@@ -324,29 +324,29 @@ export function ImportadorForm() {
                   <th className="py-2.5 px-3">Cargo</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-200">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
                 {filasParseadas.map((f, i) => (
-                  <tr key={i} className="hover:bg-slate-800/40">
-                    <td className="py-2 px-3 text-slate-500">{i + 1}</td>
-                    <td className="py-2 px-3 font-semibold text-white">{f.razonSocial}</td>
+                  <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                    <td className="py-2 px-3 text-slate-400">{i + 1}</td>
+                    <td className="py-2 px-3 font-bold text-slate-900 dark:text-white">{f.razonSocial}</td>
                     <td className="py-2 px-3 font-mono">
                       {f.rut ? (
                         f.rutValido ? (
-                          <span className="text-emerald-400">{f.rut}</span>
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold">{f.rut}</span>
                         ) : (
-                          <span className="text-rose-400 flex items-center gap-1">
+                          <span className="text-rose-700 dark:text-rose-400 font-bold flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" />
                             <span>{f.rut} (RUT Inválido)</span>
                           </span>
                         )
                       ) : (
-                        <span className="text-slate-500 italic">—</span>
+                        <span className="text-slate-400 italic">—</span>
                       )}
                     </td>
-                    <td className="py-2 px-3 text-slate-400">{f.rubro || "—"}</td>
-                    <td className="py-2 px-3">{f.nombreContacto || "—"}</td>
-                    <td className="py-2 px-3 text-slate-400">{f.emailContacto || "—"}</td>
-                    <td className="py-2 px-3 text-slate-400">{f.cargoContacto || "—"}</td>
+                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{f.rubro || "—"}</td>
+                    <td className="py-2 px-3 font-medium">{f.nombreContacto || "—"}</td>
+                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{f.emailContacto || "—"}</td>
+                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{f.cargoContacto || "—"}</td>
                   </tr>
                 ))}
               </tbody>

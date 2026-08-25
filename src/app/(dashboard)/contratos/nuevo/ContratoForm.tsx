@@ -12,7 +12,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md transition disabled:opacity-50 flex items-center gap-2"
+      className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition disabled:opacity-50 flex items-center gap-2"
     >
       <Save className="w-4 h-4" />
       <span>{pending ? "Guardando contrato..." : "Crear Contrato"}</span>
@@ -111,7 +111,7 @@ export function ContratoForm({
   return (
     <form action={formAction} className="space-y-6">
       {state?.error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-xs font-medium">
+        <div className="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl text-rose-700 dark:text-rose-400 text-xs font-bold">
           {state.error}
         </div>
       )}
@@ -125,22 +125,22 @@ export function ContratoForm({
       <input type="hidden" name="firmantes" value={JSON.stringify(firmantes)} />
 
       {/* Section 1: Datos Principales */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-          <FileText className="w-4 h-4 text-rose-400" />
-          <h2 className="text-sm font-semibold text-white">1. Identificación del Contrato</h2>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <FileText className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">1. Identificación del Contrato</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           {/* Propuesta opcional */}
           <div className="sm:col-span-2">
-            <label className="block text-slate-300 font-medium mb-1">
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">
               ¿Generar desde una Propuesta Aceptada? (Opcional)
             </label>
             <select
               value={propuestaId}
               onChange={(e) => handleSelectPropuesta(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">— Seleccionar propuesta si aplica —</option>
               {propuestas.map((p) => (
@@ -152,14 +152,14 @@ export function ContratoForm({
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">
-              Empresa / Cliente <span className="text-rose-400">*</span>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">
+              Empresa / Cliente <span className="text-rose-500">*</span>
             </label>
             <select
               value={cuentaId}
               onChange={(e) => setCuentaId(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">— Seleccionar cliente —</option>
               {cuentas.map((c) => (
@@ -171,11 +171,11 @@ export function ContratoForm({
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Tipo de Contrato</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Tipo de Contrato</label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="prestacion_servicios">Prestación de Servicios Recurrentes</option>
               <option value="anexo">Anexo Modificatorio</option>
@@ -184,8 +184,8 @@ export function ContratoForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-slate-300 font-medium mb-1">
-              Nombre / Objeto del Contrato <span className="text-rose-400">*</span>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">
+              Nombre / Objeto del Contrato <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -193,40 +193,40 @@ export function ContratoForm({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej: Contrato de Prestación de Servicios de Inteligencia Comercial"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Valor Total / Mensual (UF)</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Valor Total / Mensual (UF)</label>
             <input
               type="number"
               step="0.1"
               value={valorUF}
               onChange={(e) => setValorUF(parseFloat(e.target.value) || 0)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-slate-300 font-medium mb-1">Observaciones o Cláusulas Especiales</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Observaciones o Cláusulas Especiales</label>
             <textarea
               rows={2}
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               placeholder="Comentarios adicionales..."
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
       </div>
 
       {/* Section 2: Firmantes */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-sm font-semibold text-white">2. Firmantes y Contrapartes ({firmantes.length})</h2>
+            <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">2. Firmantes y Contrapartes ({firmantes.length})</h2>
           </div>
         </div>
 
@@ -236,18 +236,18 @@ export function ContratoForm({
             {firmantes.map((f, i) => (
               <div
                 key={i}
-                className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between text-xs"
+                className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs"
               >
                 <div>
-                  <p className="font-semibold text-white">{f.nombre}</p>
-                  <p className="text-[11px] text-slate-400">
-                    {f.cargo || "Sin cargo"} · {f.email || "Sin email"} · <span className="text-blue-400">{f.rol}</span>
+                  <p className="font-bold text-slate-900 dark:text-white">{f.nombre}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {f.cargo || "Sin cargo"} · {f.email || "Sin email"} · <span className="text-blue-600 dark:text-blue-400 font-semibold">{f.rol}</span>
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleEliminarFirmante(i)}
-                  className="text-slate-500 hover:text-rose-400 p-1"
+                  className="text-slate-400 hover:text-rose-600 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -257,8 +257,8 @@ export function ContratoForm({
         )}
 
         {/* Agregar firmante */}
-        <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3 text-xs">
-          <p className="font-semibold text-slate-300 text-xs">+ Agregar Representante o Firmante</p>
+        <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 text-xs">
+          <p className="font-bold text-slate-700 dark:text-slate-300 text-xs">+ Agregar Representante o Firmante</p>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
               <input
@@ -266,7 +266,7 @@ export function ContratoForm({
                 placeholder="Nombre completo"
                 value={nombreFirmante}
                 onChange={(e) => setNombreFirmante(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400"
               />
             </div>
             <div>
@@ -275,7 +275,7 @@ export function ContratoForm({
                 placeholder="Correo electrónico"
                 value={emailFirmante}
                 onChange={(e) => setEmailFirmante(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400"
               />
             </div>
             <div>
@@ -284,14 +284,14 @@ export function ContratoForm({
                 placeholder="Cargo (Ej: Gerente)"
                 value={cargoFirmante}
                 onChange={(e) => setCargoFirmante(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400"
               />
             </div>
             <div>
               <select
                 value={rolFirmante}
                 onChange={(e) => setRolFirmante(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white"
               >
                 <option value="Representante Legal">Representante Legal</option>
                 <option value="Contraparte Técnica">Contraparte Técnica</option>
@@ -304,7 +304,7 @@ export function ContratoForm({
             <button
               type="button"
               onClick={handleAgregarFirmante}
-              className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition"
+              className="px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm transition"
             >
               Agregar a la lista
             </button>
@@ -315,7 +315,7 @@ export function ContratoForm({
       <div className="flex items-center justify-end gap-3 pt-2">
         <Link
           href="/contratos"
-          className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition"
+          className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition"
         >
           Cancelar
         </Link>
