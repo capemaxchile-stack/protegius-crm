@@ -7,7 +7,7 @@ type FontSize = "normal" | "medium" | "large";
 
 export function ControlesAccesibilidad() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [fontSize, setFontSize] = useState<FontSize>("medium"); // Por defecto letra mediana más legible
+  const [fontSize, setFontSize] = useState<FontSize>("medium");
 
   useEffect(() => {
     // 1. Cargar tema guardado
@@ -49,29 +49,29 @@ export function ControlesAccesibilidad() {
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 p-2 bg-slate-950/60 dark:bg-slate-950/60 light:bg-slate-100 border border-slate-800 dark:border-slate-800 light:border-slate-300 rounded-xl text-xs">
+    <div className="flex items-center justify-between gap-2 p-2 bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs transition-colors">
       {/* Botón Tema Claro / Oscuro */}
       <button
         type="button"
         onClick={toggleTheme}
         title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 dark:bg-slate-900 light:bg-white text-slate-300 dark:text-slate-300 light:text-slate-700 hover:text-white border border-slate-800 dark:border-slate-800 light:border-slate-300 transition"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white border border-slate-200 dark:border-slate-800 shadow-sm transition"
       >
         {theme === "dark" ? (
           <>
             <Sun className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[11px] font-medium">Claro</span>
+            <span className="text-[11px] font-bold">Claro</span>
           </>
         ) : (
           <>
-            <Moon className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-[11px] font-medium">Oscuro</span>
+            <Moon className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="text-[11px] font-bold">Oscuro</span>
           </>
         )}
       </button>
 
-      {/* Selector de Tamaño de Letra (A-, A, A+) */}
-      <div className="flex items-center gap-1 bg-slate-900 dark:bg-slate-900 light:bg-white p-1 rounded-lg border border-slate-800 dark:border-slate-800 light:border-slate-300">
+      {/* Selector de Tamaño de Letra (A, A+, A++) */}
+      <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
         <button
           type="button"
           onClick={() => cambiarFontSize("normal")}
@@ -79,7 +79,7 @@ export function ControlesAccesibilidad() {
           className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
             fontSize === "normal"
               ? "bg-blue-600 text-white"
-              : "text-slate-400 hover:text-white"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           A
@@ -92,7 +92,7 @@ export function ControlesAccesibilidad() {
           className={`px-1.5 py-0.5 rounded text-[11px] font-bold transition ${
             fontSize === "medium"
               ? "bg-blue-600 text-white"
-              : "text-slate-400 hover:text-white"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           A+
@@ -105,7 +105,7 @@ export function ControlesAccesibilidad() {
           className={`px-1.5 py-0.5 rounded text-xs font-black transition ${
             fontSize === "large"
               ? "bg-blue-600 text-white"
-              : "text-slate-400 hover:text-white"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           A++

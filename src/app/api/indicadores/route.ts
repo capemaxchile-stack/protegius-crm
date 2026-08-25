@@ -1,65 +1,74 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 3600; // Cachear por 1 hora
+export const revalidate = 1800; // Cachear por 30 minutos
 
 export interface IndicadoresData {
   uf: { valor: number; fecha: string };
   dolar: { valor: number; fecha: string };
   utm: { valor: number; fecha: string };
-  euro?: { valor: number; fecha: string };
+  euro: { valor: number; fecha: string };
   fechaConsulta: string;
 }
 
 export async function GET() {
   const fallback: IndicadoresData = {
-    uf: { valor: 38250.4, fecha: new Date().toISOString() },
-    dolar: { valor: 942.5, fecha: new Date().toISOString() },
-    utm: { valor: 67340.0, fecha: new Date().toISOString() },
-    euro: { valor: 1025.8, fecha: new Date().toISOString() },
+    uf: { valor: 40865.87, fecha: new Date().toISOString() },
+    dolar: { valor: 914.64, fecha: new Date().toISOString() },
+    utm: { valor: 71649.0, fecha: new Date().toISOString() },
+    euro: { valor: 1066.64, fecha: new Date().toISOString() },
     fechaConsulta: new Date().toISOString(),
   };
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-    const res = await fetch("https://mindicador.cl/api", {
-      signal: controller.signal,
-      next: { revalidate: 3600 },
-    });
+    const [resUf, resDolar, resUtm, resEuro] = await Promise.allSettled([
+      fetch("https://findic.cl/api/uf", { signal: controller.signal, next: { revalidate: 1800 } }),
+      fetch("https://findic.cl/api/dolar", { signal: controller.signal, next: { revalidate: 1800 } }),
+      fetch("https://findic.cl/api/utm", { signal: controller.signal, next: { revalidate: 1800 } }),
+      fetch("https://findic.cl/api/euro", { signal: controller.signal, next: { revalidate: 1800 } }),
+    ]);
 
     clearTimeout(timeoutId);
 
-    if (!res.ok) {
-      return NextResponse.json(fallback);
+    let ufValor = fallback.uf.valor;
+    let dolarValor = fallback.dolar.valor;
+    let utmValor = fallback.utm.valor;
+    let euroValor = fallback.euro.valor;
+
+    if (resUf.status === "fulfilled" && resUf.value.ok) {
+      const data = await resUf.value.json();
+      if (data.serie?.[0]?.valor) ufValor = data.serie[0].valor;
     }
 
-    const data = await res.json();
+    if (resDolar.status === "fulfilled" && resDolar.value.ok) {
+      const data = await resDolar.value.json();
+      if (data.serie?.[0]?.valor) dolarValor = data.serie[0].valor;
+    }
+
+    if (resUtm.status === "fulfilled" && resUtm.value.ok) {
+      const data = await resUtm.value.json();
+      if (data.serie?.[0]?.valor) utmValor = data.serie[0].valor;
+    }
+
+    if (resEuro.status === "fulfilled" && resEuro.value.ok) {
+      const data = await resEuro.value.json();
+      if (data.serie?.[0]?.valor) euroValor = data.serie[0].valor;
+    }
 
     const resultado: IndicadoresData = {
-      uf: {
-        valor: data.uf?.valor || fallback.uf.valor,
-        fecha: data.uf?.fecha || fallback.uf.fecha,
-      },
-      dolar: {
-        valor: data.dolar?.valor || fallback.dolar.valor,
-        fecha: data.dolar?.fecha || fallback.dolar.fecha,
-      },
-      utm: {
-        valor: data.utm?.valor || fallback.utm.valor,
-        fecha: data.utm?.fecha || fallback.utm.fecha,
-      },
-      euro: {
-        valor: data.euro?.valor || fallback.euro?.valor,
-        fecha: data.euro?.fecha || fallback.euro?.fecha,
-      },
+      uf: { valor: ufValor, fecha: new Date().toISOString() },
+      dolar: { valor: dolarValor, fecha: new Date().toISOString() },
+      utm: { valor: utmValor, fecha: new Date().toISOString() },
+      euro: { valor: euroValor, fecha: new Date().toISOString() },
       fechaConsulta: new Date().toISOString(),
     };
 
     return NextResponse.json(resultado);
   } catch (e) {
-    console.error("Error al consultar mindicador.cl, usando fallback:", e);
+    console.error("Error al consultar findic.cl, usando fallback actualizado:", e);
     return NextResponse.json(fallback);
   }
 }
