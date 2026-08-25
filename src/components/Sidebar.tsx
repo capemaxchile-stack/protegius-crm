@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -13,7 +14,6 @@ import {
   UserCheck,
   UserCog,
   LogOut,
-  ShieldCheck,
   BookOpen,
   BarChart3,
 } from "lucide-react";
@@ -71,15 +71,21 @@ export function Sidebar({ user }: SidebarProps) {
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0 text-slate-700 dark:text-slate-300 print:hidden transition-colors duration-150">
       <div className="overflow-hidden flex flex-col">
         {/* Brand header */}
-        <div className="p-5 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="p-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-slate-800/90 border border-blue-100 dark:border-slate-700/60 p-1.5 flex items-center justify-center shrink-0 shadow-sm">
+            <Image
+              src="/logo_protegius.svg"
+              alt="Logo Protegius"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
-            <h1 className="font-bold text-slate-900 dark:text-white tracking-wide text-base leading-tight">
+            <h1 className="font-black text-slate-900 dark:text-white tracking-wider text-base leading-tight">
               PROTEGIUS
             </h1>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold tracking-tight">
               CRM Corporativo
             </p>
           </div>

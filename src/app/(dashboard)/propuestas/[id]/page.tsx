@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -145,11 +146,15 @@ export default async function PropuestaDetallePage({
         {/* Document Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800 print:border-slate-300">
           <div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
-                P
-              </div>
-              <span className="font-bold text-lg text-slate-900 dark:text-white tracking-tight print:text-slate-900">
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/logo_protegius.svg"
+                alt="Logo Protegius"
+                width={28}
+                height={36}
+                className="w-7 h-9 object-contain"
+              />
+              <span className="font-black text-xl text-slate-900 dark:text-white tracking-tight print:text-slate-900">
                 PROTEGIUS
               </span>
             </div>

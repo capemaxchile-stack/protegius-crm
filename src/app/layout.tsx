@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Protegius CRM — Sistema de Gestión Comercial",
   description: "Plataforma de gestión comercial, oportunidades, propuestas y clientes para Protegius.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

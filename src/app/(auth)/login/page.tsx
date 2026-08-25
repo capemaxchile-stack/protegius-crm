@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense } from "react";
+import Image from "next/image";
 import { useFormState, useFormStatus } from "react-dom";
 import { loginAction } from "./actions";
 import { useSearchParams } from "next/navigation";
-import { ShieldCheck, Lock, Mail, ArrowRight } from "lucide-react";
+import { Lock, Mail, ArrowRight } from "lucide-react";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -113,11 +114,17 @@ export default function LoginPage() {
       <div className="w-full max-w-md z-10">
         {/* Brand header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 mb-4 shadow-inner">
-            <ShieldCheck className="w-8 h-8 text-blue-500" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 mb-4 p-3 shadow-xl backdrop-blur-sm">
+            <Image
+              src="/logo_protegius.svg"
+              alt="Protegius Logo"
+              width={48}
+              height={48}
+              className="w-full h-full object-contain"
+            />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">PROTEGIUS</h1>
-          <p className="text-slate-400 text-sm mt-1">Sistema de Gestión Comercial y Clientes</p>
+          <h1 className="text-2xl font-black tracking-tight text-white">PROTEGIUS</h1>
+          <p className="text-slate-400 text-sm mt-1 font-medium">Sistema de Gestión Comercial y Clientes</p>
         </div>
 
         <Suspense fallback={<div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-sm">Cargando formulario...</div>}>
