@@ -2,14 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #0f172a;
-  --primary-hover: #1e293b;
-  --accent: #2563eb;
+/* Escalado dinámico y accesible de fuentes */
+html {
+  font-size: 15.5px;
+  transition: font-size 0.15s ease-in-out;
 }
 
-body {
-  color: #0f172a;
-  background-color: #f8fafc;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+html[data-font-size="normal"] {
+  font-size: 14px;
+}
+
+html[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+html[data-font-size="large"] {
+  font-size: 17.5px;
+}
+
+/* Modo Claro / Light Theme Overrides */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light aside {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html.light main {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/60 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/40 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .border-slate-800 {
+  border-color: #e2e8f0 !important;
 }
