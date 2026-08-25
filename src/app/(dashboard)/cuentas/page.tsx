@@ -69,13 +69,21 @@ export default async function CuentasPage({
           </p>
         </div>
 
-        <Link
-          href="/cuentas/nueva"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-md transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Nueva Cuenta</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/cuentas/importar"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition"
+          >
+            <span>+ Importar CSV</span>
+          </Link>
+          <Link
+            href="/cuentas/nueva"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-md transition"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nueva Cuenta</span>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

@@ -15,6 +15,7 @@ import {
   LogOut,
   ShieldCheck,
   BookOpen,
+  BarChart3,
 } from "lucide-react";
 import { USER_ROLE_LABELS, UserRole } from "@/lib/constants";
 
@@ -31,14 +32,31 @@ export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
   const navigation = [
-    { name: "Inicio", href: "/", icon: LayoutDashboard },
-    { name: "Oportunidades", href: "/oportunidades", icon: TrendingUp },
-    { name: "Gestiones Rápidas", href: "/oportunidades/gestiones", icon: PhoneCall },
+    { name: "Inicio", href: "/", icon: LayoutDashboard, exact: true },
+    {
+      name: "Oportunidades",
+      href: "/oportunidades",
+      icon: TrendingUp,
+      isActive: (path: string) =>
+        path === "/oportunidades" ||
+        path.startsWith("/oportunidades/pipeline") ||
+        path.startsWith("/oportunidades/dashboard") ||
+        path.startsWith("/oportunidades/seguimiento") ||
+        path.startsWith("/oportunidades/alta-rapida") ||
+        (path.startsWith("/oportunidades/") && !path.startsWith("/oportunidades/gestiones")),
+    },
+    {
+      name: "Gestiones Rápidas",
+      href: "/oportunidades/gestiones",
+      icon: PhoneCall,
+      isActive: (path: string) => path.startsWith("/oportunidades/gestiones"),
+    },
     { name: "Cuentas / Empresas", href: "/cuentas", icon: Building2 },
     { name: "Contactos", href: "/contactos", icon: Users2 },
     { name: "Propuestas en UF", href: "/propuestas", icon: FileSpreadsheet },
     { name: "Contratos", href: "/contratos", icon: FileCheck2 },
     { name: "Onboarding", href: "/onboarding", icon: UserCheck },
+    { name: "Reportes Gerenciales", href: "/reportes", icon: BarChart3 },
     { name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
   ];
 
@@ -48,7 +66,7 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0 text-slate-300">
+    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0 text-slate-300 print:hidden">
       <div>
         {/* Brand header */}
         <div className="p-6 flex items-center gap-3 border-b border-slate-800/80">
@@ -64,10 +82,11 @@ export function Sidebar({ user }: SidebarProps) {
         {/* Navigation links */}
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
           {navigation.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
+            const isActive = item.isActive
+              ? item.isActive(pathname)
+              : item.exact
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
 
             const Icon = item.icon;
 
