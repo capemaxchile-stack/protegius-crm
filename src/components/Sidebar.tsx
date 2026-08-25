@@ -10,9 +10,11 @@ import {
   PhoneCall,
   FileSpreadsheet,
   FileCheck2,
+  UserCheck,
   UserCog,
   LogOut,
   ShieldCheck,
+  BookOpen,
 } from "lucide-react";
 import { USER_ROLE_LABELS, UserRole } from "@/lib/constants";
 
@@ -34,8 +36,10 @@ export function Sidebar({ user }: SidebarProps) {
     { name: "Gestiones Rápidas", href: "/oportunidades/gestiones", icon: PhoneCall },
     { name: "Cuentas / Empresas", href: "/cuentas", icon: Building2 },
     { name: "Contactos", href: "/contactos", icon: Users2 },
-    { name: "Propuestas", href: "/propuestas", icon: FileSpreadsheet },
+    { name: "Propuestas en UF", href: "/propuestas", icon: FileSpreadsheet },
     { name: "Contratos", href: "/contratos", icon: FileCheck2 },
+    { name: "Onboarding", href: "/onboarding", icon: UserCheck },
+    { name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
   ];
 
   // Solo administradores ven gestión de usuarios
@@ -58,7 +62,7 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
 
         {/* Navigation links */}
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
           {navigation.map((item) => {
             const isActive =
               item.href === "/"

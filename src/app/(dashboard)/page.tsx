@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import {
   TrendingUp,
-  Building2,
   PhoneCall,
   CheckCircle2,
   Clock,
@@ -11,25 +10,39 @@ import {
   ShieldCheck,
   PlusCircle,
   FileSpreadsheet,
+  FileCheck2,
 } from "lucide-react";
 import { USER_ROLE_LABELS, formatearUF } from "@/lib/constants";
+import { PanelAyuda } from "@/components/PanelAyuda";
 
 export default async function DashboardPage() {
   const user = await requireAuth();
 
   // Obtener estadísticas rápidas
-  const [totalCuentas, totalOportunidades, oportunidadesAbiertas, totalTareasPendientes] =
-    await Promise.all([
-      prisma.cuenta.count(),
-      prisma.oportunidad.count(),
-      prisma.oportunidad.findMany({
-        where: { estado: "abierta" },
-        select: { valorEstimado: true, probabilidad: true },
-      }),
-      prisma.tarea.count({
-        where: { estado: "pendiente" },
-      }),
-    ]);
+  const [
+    totalCuentas,
+    totalOportunidades,
+    oportunidadesAbiertas,
+    totalTareasPendientes,
+    totalContratosFirmados,
+    totalOnboardingsActivos,
+  ] = await Promise.all([
+    prisma.cuenta.count(),
+    prisma.oportunidad.count(),
+    prisma.oportunidad.findMany({
+      where: { estado: "abierta" },
+      select: { valorEstimado: true, probabilidad: true },
+    }),
+    prisma.tarea.count({
+      where: { estado: "pendiente" },
+    }),
+    prisma.contrato.count({
+      where: { estado: "firmado" },
+    }),
+    prisma.onboardingCliente.count({
+      where: { estado: "en_proceso" },
+    }),
+  ]);
 
   const pipelineUF = oportunidadesAbiertas.reduce(
     (acc, op) => acc + (op.valorEstimado || 0),
@@ -68,15 +81,36 @@ export default async function DashboardPage() {
               <span>Nueva Gestión</span>
             </Link>
             <Link
-              href="/oportunidades/nueva"
+              href="/oportunidades/alta-rapida"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition duration-150"
             >
-              <PlusCircle className="w-4 h-4" />
-              <span>Crear Oportunidad</span>
+              <PlusCircle className="w-4 h-4 text-amber-400" />
+              <span>Alta Rápida</span>
             </Link>
           </div>
         </div>
       </div>
+
+      {/* Contextual Help Banner */}
+      <PanelAyuda
+        titulo="Guía Rápida del Flujo Comercial"
+        descripcion="Protegius CRM organiza el ciclo de ventas B2B en etapas claras: Prospección Temprana -> Oportunidad en UF -> Propuesta Formal -> Contrato Firmado -> Onboarding Técnico."
+        pasos={[
+          {
+            titulo: "1. Captación",
+            detalle: "Registra llamadas en Gestiones Tempranas o usa Alta Rápida para crear todo en un paso.",
+          },
+          {
+            titulo: "2. Negociación",
+            detalle: "Mueve los negocios por las 6 etapas del Pipeline y emite propuestas con precios congelados en UF.",
+          },
+          {
+            titulo: "3. Activación",
+            detalle: "Firma el contrato y completa el Onboarding técnico para activar los servicios recurrentes.",
+          },
+        ]}
+        consejoPro="Puedes revisar la guía completa en cualquier momento desde la sección 'Centro de Ayuda' en la barra lateral."
+      />
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -108,124 +142,80 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Empresas / Prospectos */}
+        {/* Contratos Firmados */}
         <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium uppercase tracking-wider">Cuentas Registradas</span>
-            <Building2 className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-medium uppercase tracking-wider">Contratos Firmados</span>
+            <FileCheck2 className="w-4 h-4 text-rose-400" />
           </div>
           <div className="text-2xl font-bold text-white tracking-tight">
-            {totalCuentas}
+            {totalContratosFirmados}
           </div>
-          <p className="text-xs text-slate-400 mt-1">Empresas en cartera</p>
+          <p className="text-xs text-slate-400 mt-1">
+            En Onboarding: <span className="text-cyan-400 font-semibold">{totalOnboardingsActivos}</span>
+          </p>
         </div>
 
         {/* Tareas Pendientes */}
         <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium uppercase tracking-wider">Compromisos / Tareas</span>
+            <span className="text-xs font-medium uppercase tracking-wider">Compromisos Pendientes</span>
             <Clock className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="text-2xl font-bold text-white tracking-tight">
             {totalTareasPendientes}
           </div>
-          <p className="text-xs text-slate-400 mt-1">Acciones pendientes de seguimiento</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Cuentas en cartera: <span className="text-slate-200">{totalCuentas}</span>
+          </p>
         </div>
       </div>
 
-      {/* Quick shortcuts & System status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Module shortcuts */}
-        <div className="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-          <h2 className="text-base font-semibold text-white mb-4">Acceso Rápido a Módulos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link
-              href="/oportunidades/gestiones"
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <PhoneCall className="w-5 h-5 text-blue-400 group-hover:scale-110 transition duration-150" />
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-blue-400 transition" />
-              </div>
-              <h3 className="font-semibold text-sm text-white">Gestiones Tempranas</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Registra llamadas, WhatsApp y reuniones sin crear oportunidad forzada.
-              </p>
-            </Link>
-
-            <Link
-              href="/oportunidades"
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <TrendingUp className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition duration-150" />
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-emerald-400 transition" />
-              </div>
-              <h3 className="font-semibold text-sm text-white">Pipeline de Oportunidades</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Monitorea el avance de negocios en UF a través de las 6 etapas comerciales.
-              </p>
-            </Link>
-
-            <Link
-              href="/propuestas"
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <FileSpreadsheet className="w-5 h-5 text-amber-400 group-hover:scale-110 transition duration-150" />
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-amber-400 transition" />
-              </div>
-              <h3 className="font-semibold text-sm text-white">Módulo de Propuestas</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Cotizaciones estandarizadas y generación de documentos profesionales.
-              </p>
-            </Link>
-
-            <Link
-              href="/cuentas"
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <Building2 className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition duration-150" />
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 transition" />
-              </div>
-              <h3 className="font-semibold text-sm text-white">Fichero de Clientes y Contactos</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Directorio unificado con validación de RUT y trazabilidad histórica.
-              </p>
-            </Link>
-          </div>
-        </div>
-
-        {/* Infrastructure & System Details */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-white mb-3">Infraestructura Homelab</h2>
-            <div className="space-y-3 text-xs text-slate-300">
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Motor de Base de Datos</span>
-                <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-blue-400">PostgreSQL 16</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Autenticación</span>
-                <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-emerald-400">JWT + RBAC</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Contenedor</span>
-                <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-indigo-400">Docker Compose</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-slate-400">Moneda Base</span>
-                <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-amber-400">UF (Chile)</span>
-              </div>
+      {/* Module shortcuts */}
+      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+        <h2 className="text-base font-semibold text-white mb-4">Acceso Rápido a Módulos</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            href="/oportunidades/pipeline"
+            className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-purple-400 group-hover:scale-110 transition duration-150" />
+              <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-purple-400 transition" />
             </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-800/80">
-            <p className="text-[11px] text-slate-500">
-              Protegius CRM v1.0.0 · Diseñado para arquitectura autónoma y flexible.
+            <h3 className="font-semibold text-sm text-white">Pipeline de Ventas (UF)</h3>
+            <p className="text-xs text-slate-400 mt-1">
+              Tablero Kanban con 6 etapas de venta y métricas en vivo.
             </p>
-          </div>
+          </Link>
+
+          <Link
+            href="/propuestas"
+            className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <FileSpreadsheet className="w-5 h-5 text-amber-400 group-hover:scale-110 transition duration-150" />
+              <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-amber-400 transition" />
+            </div>
+            <h3 className="font-semibold text-sm text-white">Cotizador de Propuestas</h3>
+            <p className="text-xs text-slate-400 mt-1">
+              Cotizaciones con precios congelados y membresías en UF.
+            </p>
+          </Link>
+
+          <Link
+            href="/contratos"
+            className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-blue-500/40 transition duration-150 group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <FileCheck2 className="w-5 h-5 text-rose-400 group-hover:scale-110 transition duration-150" />
+              <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-rose-400 transition" />
+            </div>
+            <h3 className="font-semibold text-sm text-white">Contratos & Onboarding</h3>
+            <p className="text-xs text-slate-400 mt-1">
+              Firma de acuerdos y entrega técnica de credenciales a clientes.
+            </p>
+          </Link>
         </div>
       </div>
     </div>
