@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { formatearFecha } from "@/lib/constants";
 import { Prisma } from "@prisma/client";
+import { EditarContactoModal } from "@/components/EditarContactoModal";
 
 export default async function ContactosPage({
   searchParams,
@@ -66,7 +67,7 @@ export default async function ContactosPage({
             <Users2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Directorio de Contactos</h1>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
             Fichero unificado de personas y su historial de afiliaciones con empresas.
           </p>
         </div>
@@ -91,21 +92,22 @@ export default async function ContactosPage({
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 font-semibold">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 font-bold">
               <tr>
                 <th className="py-3.5 px-4">Contacto</th>
                 <th className="py-3.5 px-4">Datos de Contacto</th>
                 <th className="py-3.5 px-4">Empresas / Afiliaciones</th>
                 <th className="py-3.5 px-4">Interacciones</th>
                 <th className="py-3.5 px-4">Fecha Registro</th>
+                <th className="py-3.5 px-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
               {contactos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     <Users2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No se encontraron contactos</p>
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No se encontraron contactos</p>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {query ? "Intenta con otro término de búsqueda." : "Los contactos se van creando dentro de cada empresa."}
                     </p>
@@ -132,13 +134,13 @@ export default async function ContactosPage({
                           {p.email && (
                             <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                               <Mail className="w-3 h-3 text-slate-400" />
-                              <a href={`mailto:${p.email}`} className="hover:underline text-blue-600 dark:text-blue-400 font-medium">
+                              <a href={`mailto:${p.email}`} className="hover:underline text-blue-600 dark:text-blue-400 font-semibold">
                                 {p.email}
                               </a>
                             </div>
                           )}
                           {p.telefono && (
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
                               <Phone className="w-3 h-3 text-slate-400" />
                               <span>{p.telefono}</span>
                             </div>
@@ -177,10 +179,24 @@ export default async function ContactosPage({
                       </td>
 
                       <td className="py-4 px-4 text-slate-500 dark:text-slate-400">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 font-medium">
                           <Calendar className="w-3 h-3" />
                           <span>{formatearFecha(p.createdAt)}</span>
                         </div>
+                      </td>
+
+                      <td className="py-4 px-4 text-right">
+                        <EditarContactoModal
+                          contacto={{
+                            id: p.id,
+                            nombre: p.nombre,
+                            cargo: p.cargo,
+                            email: p.email,
+                            telefono: p.telefono,
+                            nota: p.nota,
+                          }}
+                          variant="button"
+                        />
                       </td>
                     </tr>
                   );

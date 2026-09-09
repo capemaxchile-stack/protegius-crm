@@ -14,6 +14,7 @@ import { formatearRUT } from "@/lib/rut";
 import { ETAPAS_CUENTA, formatearUF, formatearFecha } from "@/lib/constants";
 import { ContactoModal } from "./ContactoModal";
 import { ActividadModal } from "./ActividadModal";
+import { EditarContactoModal } from "@/components/EditarContactoModal";
 import {
   toggleEstadoContactoAction,
   marcarContactoPrincipalAction,
@@ -239,7 +240,22 @@ export default async function CuentaDetallePage({
                       )}
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end">
+                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                      <EditarContactoModal
+                        contacto={{
+                          id: af.persona.id,
+                          nombre: af.persona.nombre,
+                          cargo: af.persona.cargo,
+                          email: af.persona.email,
+                          telefono: af.persona.telefono,
+                          nota: af.persona.nota,
+                        }}
+                        afiliacionId={af.id}
+                        afiliacionCargo={af.cargo}
+                        cuentaId={cuenta.id}
+                        variant="button"
+                      />
+
                       <form
                         action={async () => {
                           "use server";
