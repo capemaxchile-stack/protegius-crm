@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { NavegacionOportunidades } from "@/components/NavegacionOportunidades";
-import { ETAPAS_OPORTUNIDAD, formatearUF } from "@/lib/constants";
+import { ETAPAS_OPORTUNIDAD, normalizarEtapaOportunidad, formatearUF } from "@/lib/constants";
 import { Building2, User, CheckCircle2, XCircle } from "lucide-react";
 
 export default async function PipelinePage() {
@@ -34,10 +34,11 @@ export default async function PipelinePage() {
       {/* Kanban Board Container */}
       <div className="flex gap-4 overflow-x-auto pb-6 min-h-[calc(100vh-280px)]">
         {ETAPAS_OPORTUNIDAD.map((etapa) => {
-          // Oportunidades abiertas o pausadas en esta etapa
-          const opsEnEtapa = oportunidades.filter(
-            (op) => op.etapa === etapa.id && (op.estado === "abierta" || op.estado === "pausada")
-          );
+          // Oportunidades abiertas o pausadas en esta etapa (con mapeo robusto)
+          const opsEnEtapa = oportunidades.filter((op) => {
+            const etapaNormalizada = normalizarEtapaOportunidad(op.etapa);
+            return etapaNormalizada === etapa.id && (op.estado === "abierta" || op.estado === "pausada");
+          });
 
           const totalUFEtapa = opsEnEtapa.reduce(
             (acc, op) => acc + (op.valorEstimado || 0),

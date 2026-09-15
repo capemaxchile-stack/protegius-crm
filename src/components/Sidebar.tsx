@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
   TrendingUp,
   Building2,
   Users2,
   PhoneCall,
+  Calendar,
   FileSpreadsheet,
   FileCheck2,
   UserCheck,
@@ -30,35 +30,47 @@ interface SidebarProps {
   };
 }
 
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  exact?: boolean;
+  isActive?: (path: string) => boolean;
+}
+
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
-  const navigation = [
-    { name: "Inicio", href: "/", icon: LayoutDashboard, exact: true },
+  const navigation: NavigationItem[] = [
     {
-      name: "Oportunidades",
-      href: "/oportunidades",
+      name: "🎯 Prospección & Llamados",
+      href: "/prospeccion",
+      icon: PhoneCall,
+      isActive: (path: string) => path === "/prospeccion" || path.startsWith("/prospeccion/"),
+    },
+    {
+      name: "Pipeline Comercial",
+      href: "/oportunidades/pipeline",
       icon: TrendingUp,
       isActive: (path: string) =>
+        path === "/oportunidades/pipeline" ||
         path === "/oportunidades" ||
-        path.startsWith("/oportunidades/pipeline") ||
         path.startsWith("/oportunidades/dashboard") ||
-        path.startsWith("/oportunidades/seguimiento") ||
         path.startsWith("/oportunidades/alta-rapida") ||
         (path.startsWith("/oportunidades/") && !path.startsWith("/oportunidades/gestiones")),
     },
     {
-      name: "Gestiones Rápidas",
-      href: "/oportunidades/gestiones",
-      icon: PhoneCall,
-      isActive: (path: string) => path.startsWith("/oportunidades/gestiones"),
+      name: "Reuniones & Agenda",
+      href: "/reuniones",
+      icon: Calendar,
+      isActive: (path: string) => path === "/reuniones" || path.startsWith("/reuniones/"),
     },
-    { name: "Cuentas / Empresas", href: "/cuentas", icon: Building2 },
-    { name: "Contactos", href: "/contactos", icon: Users2 },
+    { name: "Empresas & Cuentas", href: "/cuentas", icon: Building2 },
+    { name: "Directorio Contactos", href: "/contactos", icon: Users2 },
     { name: "Propuestas en UF", href: "/propuestas", icon: FileSpreadsheet },
+    { name: "Reportes de Gestión", href: "/reportes", icon: BarChart3 },
     { name: "Contratos", href: "/contratos", icon: FileCheck2 },
     { name: "Onboarding", href: "/onboarding", icon: UserCheck },
-    { name: "Reportes Gerenciales", href: "/reportes", icon: BarChart3 },
     { name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
   ];
 

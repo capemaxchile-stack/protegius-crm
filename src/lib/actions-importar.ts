@@ -24,9 +24,11 @@ export interface ResultadoImportacion {
 }
 
 export async function importarCuentasAction(
-  filas: FilaImportacion[]
+  filas: FilaImportacion[],
+  responsableId?: string | null
 ): Promise<ResultadoImportacion> {
   const currentUser = await requireAuth();
+  const usuarioAsignado = responsableId || currentUser.id;
 
   const resultado: ResultadoImportacion = {
     totalProcesados: filas.length,
@@ -88,6 +90,7 @@ export async function importarCuentasAction(
           data: {
             rubro: cuentaExistente.rubro || fila.rubro?.trim() || null,
             rut: cuentaExistente.rut || rutLimpio,
+            responsableId: cuentaExistente.responsableId || usuarioAsignado,
           },
         });
         cuentaId = cuentaExistente.id;
@@ -99,8 +102,9 @@ export async function importarCuentasAction(
             razonSocial,
             rut: rutLimpio,
             rubro: fila.rubro?.trim() || null,
-            etapa: "prospecto",
-            responsableId: currentUser.id,
+            etapa: "nuevo",
+            responsableId: usuarioAsignado,
+            origenLead: "importacion_excel",
           },
         });
         cuentaId = nuevaCuenta.id;
@@ -166,7 +170,9 @@ export async function importarCuentasAction(
     }
   }
 
+  revalidatePath("/prospeccion");
   revalidatePath("/cuentas");
   revalidatePath("/contactos");
+  revalidatePath("/oportunidades/pipeline");
   return resultado;
 }
