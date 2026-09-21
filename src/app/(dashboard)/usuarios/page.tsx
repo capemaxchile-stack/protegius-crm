@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { USER_ROLE_LABELS } from "@/lib/constants";
 import { CrearUsuarioModal } from "./CrearUsuarioModal";
+import { EditarUsuarioModal } from "./EditarUsuarioModal";
 import { Users, Shield, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { toggleEstadoUsuarioAction } from "./actions";
 
@@ -118,27 +119,38 @@ export default async function UsuariosPage() {
                     </td>
 
                     <td className="py-4 px-4 text-right">
-                      {!isSelf ? (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await toggleEstadoUsuarioAction(u.id, u.active);
+                      <div className="flex items-center justify-end gap-2">
+                        <EditarUsuarioModal
+                          user={{
+                            id: u.id,
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            active: u.active,
                           }}
-                        >
-                          <button
-                            type="submit"
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-                              u.active
-                                ? "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/20"
-                                : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
-                            }`}
+                          isSelf={isSelf}
+                        />
+
+                        {!isSelf ? (
+                          <form
+                            action={async () => {
+                              "use server";
+                              await toggleEstadoUsuarioAction(u.id, u.active);
+                            }}
                           >
-                            {u.active ? "Desactivar" : "Activar"}
-                          </button>
-                        </form>
-                      ) : (
-                        <span className="text-[11px] text-slate-400 italic">Sesión actual</span>
-                      )}
+                            <button
+                              type="submit"
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                                u.active
+                                  ? "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/20"
+                                  : "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
+                              }`}
+                            >
+                              {u.active ? "Desactivar" : "Activar"}
+                            </button>
+                          </form>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 );
