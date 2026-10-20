@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { prisma } from "@/lib/prisma";
 
 export interface AlertasConfig {
   telegramEnabled: boolean;
@@ -21,9 +22,11 @@ const DEFAULT_CONFIG: AlertasConfig = {
   telegramEnabled: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || "",
   telegramChatId: process.env.TELEGRAM_CHAT_ID || "",
-  emailEnabled: Boolean(process.env.ALERTA_EMAIL_WEBHOOK),
-  emailsSupervisores: process.env.EMAILS_SUPERVISORES || "",
-  emailWebhookUrl: process.env.ALERTA_EMAIL_WEBHOOK || "",
+  emailEnabled: true,
+  emailsSupervisores: process.env.EMAILS_SUPERVISORES || "capemaxchile@gmail.com",
+  emailWebhookUrl:
+    process.env.ALERTA_EMAIL_WEBHOOK ||
+    "https://n8n.capemaxchile.com/webhook/protegius-alertas-sla",
   horasAlertaPreventiva: 24,
   slaCotizacionHoras: 24,
   slaContratoHoras: 48,
@@ -39,10 +42,44 @@ function getConfigFilePath(): string {
     try {
       fs.mkdirSync(dataDir, { recursive: true });
     } catch {
-      // Ignorar si el sistema de archivos es de solo lectura
+      // Ignorar si es de solo lectura
     }
   }
   return path.join(dataDir, "alertas-config.json");
+}
+
+async function ensureConfigTable(): Promise<void> {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS crm_system_config (
+        id TEXT PRIMARY KEY,
+        config_json TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+  } catch (err) {
+    console.error("Error asegurando tabla crm_system_config:", err);
+  }
+}
+
+export async function obtenerConfigAlertasAsync(): Promise<AlertasConfig> {
+  try {
+    await ensureConfigTable();
+    const rows = await prisma.$queryRawUnsafe<Array<{ config_json: string }>>(
+      `SELECT config_json FROM crm_system_config WHERE id = 'alertas_sla' LIMIT 1;`
+    );
+    if (rows && rows.length > 0 && rows[0].config_json) {
+      const parsed = JSON.parse(rows[0].config_json) as Partial<AlertasConfig>;
+      return {
+        ...DEFAULT_CONFIG,
+        ...parsed,
+      };
+    }
+  } catch (err) {
+    console.error("Fallback a archivo local para alertas-config:", err);
+  }
+
+  return obtenerConfigAlertas();
 }
 
 export function obtenerConfigAlertas(): AlertasConfig {
@@ -60,6 +97,41 @@ export function obtenerConfigAlertas(): AlertasConfig {
     console.error("Error leyendo configuración de alertas:", err);
   }
   return DEFAULT_CONFIG;
+}
+
+export async function guardarConfigAlertasAsync(
+  nuevaConfig: Partial<AlertasConfig>
+): Promise<AlertasConfig> {
+  const actual = await obtenerConfigAlertasAsync();
+  const actualizada: AlertasConfig = {
+    ...actual,
+    ...nuevaConfig,
+  };
+
+  const jsonStr = JSON.stringify(actualizada, null, 2);
+
+  // 1. Guardar en PostgreSQL (persistente ante reinicios/redeploys de Coolify)
+  try {
+    await ensureConfigTable();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO crm_system_config (id, config_json, updated_at)
+       VALUES ('alertas_sla', $1, NOW())
+       ON CONFLICT (id) DO UPDATE SET config_json = EXCLUDED.config_json, updated_at = NOW();`,
+      jsonStr
+    );
+  } catch (err) {
+    console.error("Error guardando configuración en PostgreSQL:", err);
+  }
+
+  // 2. Guardar también en archivo local como caché rápida
+  try {
+    const filePath = getConfigFilePath();
+    fs.writeFileSync(filePath, jsonStr, "utf-8");
+  } catch (err) {
+    console.error("Error guardando configuración local:", err);
+  }
+
+  return actualizada;
 }
 
 export function guardarConfigAlertas(nuevaConfig: Partial<AlertasConfig>): AlertasConfig {
@@ -82,7 +154,7 @@ export async function enviarMensajeTelegram(
   overrideToken?: string,
   overrideChatId?: string
 ): Promise<{ ok: boolean; error?: string }> {
-  const config = obtenerConfigAlertas();
+  const config = await obtenerConfigAlertasAsync();
   const token = (overrideToken ?? config.telegramBotToken).trim();
   const chatId = (overrideChatId ?? config.telegramChatId).trim();
 
@@ -128,10 +200,16 @@ export async function enviarAlertaEmailWebhook(payload: {
   asunto: string;
   mensaje: string;
   destinatarios?: string;
+  empresa?: string;
+  accion?: string;
+  responsable?: string;
+  originador?: string;
+  fechaLimite?: string;
+  tipoEvento?: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  const config = obtenerConfigAlertas();
+  const config = await obtenerConfigAlertasAsync();
   if (!config.emailEnabled || !config.emailWebhookUrl) {
-    return { ok: false, error: "Webhook de correo no habilitado." };
+    return { ok: false, error: "Webhook de correo n8n no habilitado." };
   }
 
   try {
@@ -142,18 +220,24 @@ export async function enviarAlertaEmailWebhook(payload: {
         to: payload.destinatarios || config.emailsSupervisores,
         subject: payload.asunto,
         message: payload.mensaje,
+        empresa: payload.empresa || "",
+        accion: payload.accion || "",
+        responsable: payload.responsable || "",
+        originador: payload.originador || "",
+        fechaLimite: payload.fechaLimite || "",
+        tipoEvento: payload.tipoEvento || "alerta_sla",
         timestamp: new Date().toISOString(),
       }),
     });
 
     if (!response.ok) {
-      return { ok: false, error: `Error HTTP ${response.status} en webhook de correo.` };
+      return { ok: false, error: `Error HTTP ${response.status} en webhook n8n.` };
     }
     return { ok: true };
   } catch (err: unknown) {
     return {
       ok: false,
-      error: err instanceof Error ? err.message : "Error al enviar correo vía webhook",
+      error: err instanceof Error ? err.message : "Error al enviar correo vía webhook n8n",
     };
   }
 }
@@ -169,7 +253,7 @@ export async function notificarEventoSLA(params: {
   prioridad?: string;
   detalle?: string | null;
 }): Promise<void> {
-  const config = obtenerConfigAlertas();
+  const config = await obtenerConfigAlertasAsync();
 
   if (params.tipoEvento === "asignacion" && !config.notificarAlAsignar) return;
   if (params.tipoEvento === "por_vencer" && !config.notificarPorVencer) return;
@@ -216,6 +300,12 @@ export async function notificarEventoSLA(params: {
       asunto: `[Protegius CRM] ${params.tipoEvento.toUpperCase()} - ${params.empresa}: ${params.accion}`,
       mensaje: mensajeTelegram.replace(/<[^>]+>/g, ""),
       destinatarios,
+      empresa: params.empresa,
+      accion: params.accion,
+      responsable: params.responsable,
+      originador: params.originador,
+      fechaLimite: fechaTexto,
+      tipoEvento: params.tipoEvento,
     });
   }
 }

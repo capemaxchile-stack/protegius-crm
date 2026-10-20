@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import {
   guardarConfigAlertasAction,
   probarConexionTelegramAction,
+  detectarChatIdTelegramAction,
   ejecutarBarridoAlertasSLAAction,
   InteraccionActionState,
 } from "@/lib/actions-interacciones";
@@ -77,7 +78,9 @@ export function AuditoriaSLAView({
 }: AuditoriaSLAViewProps) {
   const [filtroSLA, setFiltroSLA] = useState<"todos" | "vencida" | "por_vencer" | "en_plazo" | "realizada">("todos");
   const [filtroResponsable, setFiltroResponsable] = useState<string>("todos");
-  const [mostrarConfig, setMostrarConfig] = useState(false);
+  const [mostrarConfig, setMostrarConfig] = useState(
+    isAdmin && !config.telegramBotToken
+  );
 
   const [botTokenInput, setBotTokenInput] = useState(config.telegramBotToken);
   const [chatIdInput, setChatIdInput] = useState(config.telegramChatId);
@@ -396,9 +399,39 @@ export function AuditoriaSLAView({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Chat ID del Grupo o Canal de Supervisores
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                      Chat ID del Grupo o Canal de Supervisores
+                    </label>
+                    <button
+                      type="button"
+                      disabled={enviandoBot}
+                      onClick={async () => {
+                        setEnviandoBot(true);
+                        setFeedbackBot(null);
+                        try {
+                          const res = await detectarChatIdTelegramAction(botTokenInput);
+                          if (res.ok && res.chatId) {
+                            setChatIdInput(res.chatId);
+                            setFeedbackBot({
+                              ok: true,
+                              msg: `¡Grupo detectado: "${res.title}" (ID: ${res.chatId})! Haz clic en Guardar Configuración.`,
+                            });
+                          } else {
+                            setFeedbackBot({
+                              ok: false,
+                              msg: res.error || "No se pudo detectar el grupo.",
+                            });
+                          }
+                        } finally {
+                          setEnviandoBot(false);
+                        }
+                      }}
+                      className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      🔍 Auto-detectar ID del Grupo
+                    </button>
+                  </div>
                   <input
                     type="text"
                     name="telegramChatId"
@@ -408,7 +441,7 @@ export function AuditoriaSLAView({
                     className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
                   />
                   <p className="text-[10px] text-slate-500 mt-1">
-                    Tip: Crea el bot en <strong>@BotFather</strong>, agrégalo a tu grupo de Telegram y usa el botón de abajo para probar el envío.
+                    Tip: Agrega tu Bot al grupo de Telegram, envía un mensaje cualquiera en el grupo (ej: <code>/hola</code>) y haz clic en <strong>🔍 Auto-detectar ID del Grupo</strong>.
                   </p>
                 </div>
 

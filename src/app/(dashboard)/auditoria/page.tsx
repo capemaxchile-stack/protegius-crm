@@ -1,12 +1,14 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { obtenerConfigAlertas } from "@/lib/alertas-externas";
+import { obtenerConfigAlertasAsync } from "@/lib/alertas-externas";
 import { AuditoriaSLAView, ItemAuditoriaSLA } from "./AuditoriaSLAView";
 import { ShieldAlert, Sparkles } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AuditoriaSLAPage() {
   const currentUser = await requireAuth();
-  const config = obtenerConfigAlertas();
+  const config = await obtenerConfigAlertasAsync();
 
   const [tareas, usuarios] = await Promise.all([
     prisma.tarea.findMany({

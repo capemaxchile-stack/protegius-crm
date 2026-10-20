@@ -4,8 +4,8 @@ import { requireAuth, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  obtenerConfigAlertas,
-  guardarConfigAlertas,
+  obtenerConfigAlertasAsync,
+  guardarConfigAlertasAsync,
   enviarMensajeTelegram,
   notificarEventoSLA,
   AlertasConfig,
@@ -409,12 +409,12 @@ export async function guardarConfigAlertasAction(
     notificarVencidas: formData.get("notificarVencidas") === "on",
   };
 
-  guardarConfigAlertas(nuevaConfig);
+  await guardarConfigAlertasAsync(nuevaConfig);
   revalidatePath("/auditoria");
 
   return {
     success: true,
-    message: "Configuración de alertas y SLA guardada exitosamente.",
+    message: "Configuración de alertas y SLA guardada en la base de datos.",
   };
 }
 
@@ -438,6 +438,60 @@ export async function probarConexionTelegramAction(
 }
 
 /**
+ * Detecta automáticamente el Chat ID del último grupo o chat donde se escribió al Bot.
+ */
+export async function detectarChatIdTelegramAction(
+  tokenInput: string
+): Promise<{ ok: boolean; chatId?: string; title?: string; error?: string }> {
+  await requireAdmin();
+  const token = tokenInput.trim();
+  if (!token) {
+    return { ok: false, error: "Primero pega el Bot Token entregado por @BotFather." };
+  }
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/getUpdates`, {
+      cache: "no-store",
+    });
+    const data = (await res.json()) as {
+      ok?: boolean;
+      description?: string;
+      result?: Array<{
+        message?: { chat?: { id: number; title?: string; username?: string; type?: string } };
+        my_chat_member?: { chat?: { id: number; title?: string; type?: string } };
+      }>;
+    };
+
+    if (!res.ok || !data.ok) {
+      return { ok: false, error: data.description || "Token inválido." };
+    }
+
+    const updates = data.result || [];
+    for (let i = updates.length - 1; i >= 0; i--) {
+      const chat = updates[i].message?.chat || updates[i].my_chat_member?.chat;
+      if (chat && chat.id) {
+        return {
+          ok: true,
+          chatId: String(chat.id),
+          title: chat.title || chat.username || chat.type || "Chat detectado",
+        };
+      }
+    }
+
+    return {
+      ok: false,
+      error:
+        "No se encontraron mensajes recientes. Agrega el Bot al grupo y escribe un mensaje cualquiera (ej: /start) en el grupo.",
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Error al consultar Telegram API.",
+    };
+  }
+}
+
+/**
  * Ejecuta un barrido inmediato de todos los compromisos por vencer o vencidos
  * y envía el reporte ejecutivo al grupo de Telegram / Supervisores.
  */
@@ -447,7 +501,7 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
   error?: string;
 }> {
   await requireAuth();
-  const config = obtenerConfigAlertas();
+  const config = await obtenerConfigAlertasAsync();
 
   const ahora = new Date();
   const limitePreventivo = new Date(

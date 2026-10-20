@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { obtenerConfigAlertas, enviarMensajeTelegram, enviarAlertaEmailWebhook } from "@/lib/alertas-externas";
+import { obtenerConfigAlertasAsync, enviarMensajeTelegram, enviarAlertaEmailWebhook } from "@/lib/alertas-externas";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export async function POST() {
 
 async function procesarBarridoSLA() {
   try {
-    const config = obtenerConfigAlertas();
+    const config = await obtenerConfigAlertasAsync();
     const ahora = new Date();
     const limitePreventivo = new Date(
       ahora.getTime() + config.horasAlertaPreventiva * 60 * 60 * 1000
