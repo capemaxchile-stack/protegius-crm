@@ -458,7 +458,7 @@ export async function detectarChatIdTelegramAction(
       description?: string;
       result?: Array<{
         message?: { chat?: { id: number; title?: string; username?: string; type?: string } };
-        my_chat_member?: { chat?: { id: number; title?: string; type?: string } };
+        my_chat_member?: { chat?: { id: number; title?: string; username?: string; type?: string } };
       }>;
     };
 

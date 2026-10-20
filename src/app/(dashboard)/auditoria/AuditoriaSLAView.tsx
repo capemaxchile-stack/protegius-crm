@@ -11,7 +11,7 @@ import {
   InteraccionActionState,
 } from "@/lib/actions-interacciones";
 import { completarTareaNotificacionAction } from "@/lib/actions-notificaciones";
-import { AlertasConfig } from "@/lib/alertas-externas";
+import type { AlertasConfig } from "@/lib/alertas-externas";
 import { formatearFechaHora } from "@/lib/constants";
 import {
   ShieldAlert,
