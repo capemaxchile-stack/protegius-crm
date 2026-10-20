@@ -368,29 +368,77 @@ export async function registrarActividadCuentaAction(
   const personaId = formData.get("personaId")?.toString().trim() || null;
   const proximoPaso = formData.get("proximoPaso")?.toString().trim() || null;
   const rawFechaPaso = formData.get("fechaProximoPaso")?.toString().trim();
+  const encargadoId = formData.get("encargadoId")?.toString().trim() || currentUser.id;
+  const prioridad = formData.get("prioridad")?.toString().trim() || "alta";
 
   if (!descripcion) {
     return { error: "El detalle de lo conversado o realizado es obligatorio." };
   }
 
-  const fechaProximoPaso = rawFechaPaso ? new Date(rawFechaPaso) : null;
+  const fechaProximoPaso = rawFechaPaso
+    ? new Date(rawFechaPaso.includes("T") ? rawFechaPaso : `${rawFechaPaso}T18:00:00`)
+    : null;
 
   try {
-    await prisma.actividad.create({
-      data: {
-        cuentaId,
-        tipo,
-        descripcion,
-        personaId: personaId || null,
-        usuarioId: currentUser.id,
-        responsable: currentUser.name,
-        proximoPaso,
-        fechaProximoPaso,
-        estadoPaso: proximoPaso ? "pendiente" : null,
-      },
+    const [cuenta, encargadoUser] = await Promise.all([
+      prisma.cuenta.findUnique({ where: { id: cuentaId } }),
+      prisma.user.findUnique({ where: { id: encargadoId } }),
+    ]);
+
+    const nombreEncargado = encargadoUser?.name || currentUser.name;
+    const textoPasoConResp = proximoPaso ? `${proximoPaso} [Resp: ${nombreEncargado}]` : null;
+
+    await prisma.$transaction(async (tx) => {
+      const act = await tx.actividad.create({
+        data: {
+          cuentaId,
+          tipo,
+          descripcion,
+          personaId: personaId || null,
+          usuarioId: currentUser.id,
+          responsable: currentUser.name,
+          proximoPaso: textoPasoConResp,
+          fechaProximoPaso,
+          estadoPaso: proximoPaso ? "pendiente" : "hecho",
+        },
+      });
+
+      if (proximoPaso) {
+        await tx.tarea.create({
+          data: {
+            titulo: proximoPaso,
+            descripcion: `Originado por ${currentUser.name}: ${descripcion}`,
+            tipo: tipo === "cotizacion" || tipo === "email" ? "correo" : tipo === "reunion" ? "reunion" : "seguimiento",
+            prioridad,
+            estado: "pendiente",
+            fechaVencimiento: fechaProximoPaso,
+            etapaRelacionada: `ORIGEN:${currentUser.name}|ACT:${act.id}`,
+            cuentaId,
+            personaId: personaId || null,
+            responsableId: encargadoId,
+          },
+        });
+      }
     });
 
+    if (proximoPaso && cuenta) {
+      const { notificarEventoSLA } = await import("@/lib/alertas-externas");
+      await notificarEventoSLA({
+        tipoEvento: "asignacion",
+        empresa: cuenta.razonSocial,
+        accion: proximoPaso,
+        originador: currentUser.name,
+        responsable: nombreEncargado,
+        emailResponsable: encargadoUser?.email,
+        fechaLimite: fechaProximoPaso,
+        prioridad,
+        detalle: descripcion,
+      });
+    }
+
     revalidatePath(`/cuentas/${cuentaId}`);
+    revalidatePath("/prospeccion");
+    revalidatePath("/auditoria");
     return { success: true };
   } catch (err) {
     console.error("Error al registrar actividad:", err);

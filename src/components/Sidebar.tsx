@@ -16,6 +16,7 @@ import {
   LogOut,
   BookOpen,
   BarChart3,
+  ShieldAlert,
 } from "lucide-react";
 import { USER_ROLE_LABELS, UserRole } from "@/lib/constants";
 import { IndicadoresEconomicos } from "./IndicadoresEconomicos";
@@ -64,6 +65,12 @@ export function Sidebar({ user }: SidebarProps) {
       href: "/reuniones",
       icon: Calendar,
       isActive: (path: string) => path === "/reuniones" || path.startsWith("/reuniones/"),
+    },
+    {
+      name: "Auditoría SLA & Alertas",
+      href: "/auditoria",
+      icon: ShieldAlert,
+      isActive: (path: string) => path === "/auditoria" || path.startsWith("/auditoria/"),
     },
     { name: "Empresas & Cuentas", href: "/cuentas", icon: Building2 },
     { name: "Directorio Contactos", href: "/contactos", icon: Users2 },

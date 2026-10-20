@@ -42,11 +42,15 @@ interface ModalGestionLlamadaProps {
     telefono?: string | null;
     email?: string | null;
   } | null;
+  usuarios?: { id: string; name: string }[];
+  currentUserId?: string;
 }
 
 export function ModalGestionLlamada({
   cuenta,
   contacto,
+  usuarios = [],
+  currentUserId,
 }: ModalGestionLlamadaProps) {
   const [open, setOpen] = useState(false);
   const [resultado, setResultado] = useState<string>("no_contesta");
@@ -248,6 +252,68 @@ export function ModalGestionLlamada({
                   </div>
                 </div>
               )}
+
+              {/* Sección Condicional: Propuesta Solicitada */}
+              {resultado === "propuesta_solicitada" && (
+                <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 space-y-3 animate-in fade-in duration-150">
+                  <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-300 font-bold text-xs">
+                    <Clock className="w-4 h-4" />
+                    <span>Flujo de Envío de Cotización (SLA Auditado)</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {usuarios.length > 0 && (
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          Encargado de enviar Cotización
+                        </label>
+                        <select
+                          name="encargadoId"
+                          defaultValue={currentUserId}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
+                        >
+                          {usuarios.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.name} {u.id === currentUserId ? "(Yo)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Fecha Límite SLA
+                      </label>
+                      <input
+                        type="date"
+                        name="fechaLimitePropuesta"
+                        defaultValue={manana}
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Selector de Encargado para Reunión o Rellamada */}
+              {(resultado === "reunion_agendada" || resultado === "rellamar" || resultado === "no_contesta") &&
+                usuarios.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Encargado Responsable del Seguimiento / Reunión
+                    </label>
+                    <select
+                      name="encargadoId"
+                      defaultValue={currentUserId}
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
+                    >
+                      {usuarios.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.name} {u.id === currentUserId ? "(Yo)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
               {/* Detalle / Observación */}
               <div>

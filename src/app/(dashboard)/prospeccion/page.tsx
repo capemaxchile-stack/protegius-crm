@@ -84,6 +84,7 @@ export default async function ProspeccionPage() {
           usuario: c.actividades[0].usuario,
           proximoPaso: c.actividades[0].proximoPaso,
           fechaProximoPaso: c.actividades[0].fechaProximoPaso,
+          estadoPaso: c.actividades[0].estadoPaso,
         }
       : null;
 

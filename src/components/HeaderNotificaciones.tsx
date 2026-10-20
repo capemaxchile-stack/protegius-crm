@@ -345,14 +345,21 @@ export function HeaderNotificaciones() {
               onClick={() => setIsOpen(false)}
               className="font-bold text-blue-600 dark:text-blue-400 hover:underline text-[11px]"
             >
-              🎯 Ver Cola de Prospección
+              🎯 Prospección
+            </Link>
+            <Link
+              href="/auditoria"
+              onClick={() => setIsOpen(false)}
+              className="font-bold text-rose-600 dark:text-rose-400 hover:underline text-[11px]"
+            >
+              🛡️ Auditoría SLA & Bot
             </Link>
             <Link
               href="/reuniones"
               onClick={() => setIsOpen(false)}
               className="font-bold text-cyan-600 dark:text-cyan-400 hover:underline text-[11px]"
             >
-              📅 Ver Agenda
+              📅 Agenda
             </Link>
           </div>
         </div>

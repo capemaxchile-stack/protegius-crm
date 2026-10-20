@@ -15,6 +15,7 @@ import { ETAPAS_CUENTA, formatearUF, formatearFecha } from "@/lib/constants";
 import { ContactoModal } from "./ContactoModal";
 import { ActividadModal } from "./ActividadModal";
 import { EditarContactoModal } from "@/components/EditarContactoModal";
+import { HistorialInteracciones } from "@/components/HistorialInteracciones";
 import {
   toggleEstadoContactoAction,
   marcarContactoPrincipalAction,
@@ -25,30 +26,41 @@ export default async function CuentaDetallePage({
 }: {
   params: { id: string };
 }) {
-  await requireAuth();
+  const currentUser = await requireAuth();
 
-  const cuenta = await prisma.cuenta.findUnique({
-    where: { id: params.id },
-    include: {
-      responsable: true,
-      afiliaciones: {
-        include: { persona: true },
-        orderBy: [{ esPrincipal: "desc" }, { createdAt: "desc" }],
+  const [cuenta, usuarios] = await Promise.all([
+    prisma.cuenta.findUnique({
+      where: { id: params.id },
+      include: {
+        responsable: true,
+        afiliaciones: {
+          include: { persona: true },
+          orderBy: [{ esPrincipal: "desc" }, { createdAt: "desc" }],
+        },
+        oportunidades: {
+          orderBy: { createdAt: "desc" },
+          include: { responsable: true },
+        },
+        actividades: {
+          orderBy: { fechaRealizada: "desc" },
+          include: {
+            persona: true,
+            usuario: { select: { id: true, name: true } },
+          },
+        },
+        tareas: {
+          where: { estado: "pendiente" },
+          orderBy: { fechaVencimiento: "asc" },
+          include: { responsable: { select: { id: true, name: true } } },
+        },
       },
-      oportunidades: {
-        orderBy: { createdAt: "desc" },
-        include: { responsable: true },
-      },
-      actividades: {
-        orderBy: { fechaRealizada: "desc" },
-        include: { persona: true },
-      },
-      tareas: {
-        where: { estado: "pendiente" },
-        orderBy: { fechaVencimiento: "asc" },
-      },
-    },
-  });
+    }),
+    prisma.user.findMany({
+      where: { active: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!cuenta) {
     notFound();
@@ -103,6 +115,8 @@ export default async function CuentaDetallePage({
           <ActividadModal
             cuentaId={cuenta.id}
             contactos={contactosActivos}
+            usuarios={usuarios}
+            currentUserId={currentUser.id}
           />
           <Link
             href={`/cuentas/${cuenta.id}/editar`}
@@ -398,39 +412,20 @@ export default async function CuentaDetallePage({
 
           {/* Card: Timeline de Actividades */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Historial de Interacciones ({cuenta.actividades.length})
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Historial de Interacciones ({cuenta.actividades.length})
+              </h2>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                ✓ Editable / Auditado
+              </span>
+            </div>
 
-            {cuenta.actividades.length === 0 ? (
-              <p className="text-slate-400 text-xs italic">No hay actividades registradas.</p>
-            ) : (
-              <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
-                {cuenta.actividades.map((act) => (
-                  <div key={act.id} className="relative pl-7 text-xs space-y-1">
-                    <div className="absolute left-1.5 top-1 w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-500 border-2 border-white dark:border-slate-900" />
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                      <span className="font-bold text-blue-600 dark:text-blue-400 capitalize">{act.tipo}</span>
-                      <span>{formatearFecha(act.fechaRealizada)}</span>
-                    </div>
-                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800/80">
-                      {act.descripcion}
-                    </p>
-                    {act.persona && (
-                      <p className="text-[10px] text-slate-500">
-                        Con: <span className="text-slate-800 dark:text-slate-300 font-semibold">{act.persona.nombre}</span>
-                      </p>
-                    )}
-                    {act.proximoPaso && (
-                      <div className="text-[11px] bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 p-2 rounded-lg mt-1 font-medium">
-                        <strong>Próximo paso:</strong> {act.proximoPaso}{" "}
-                        {act.fechaProximoPaso && `(${formatearFecha(act.fechaProximoPaso)})`}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <HistorialInteracciones
+              actividades={cuenta.actividades}
+              isAdmin={currentUser.role === "ADMIN"}
+              usuarios={usuarios}
+            />
           </div>
         </div>
       </div>

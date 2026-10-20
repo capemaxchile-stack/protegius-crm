@@ -131,6 +131,13 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
       return { success: false, error: "Tarea no encontrada." };
     }
 
+    // Extraer actividad vinculada si existe en etapaRelacionada (ej: "ORIGEN:Nombre|ACT:id")
+    let actividadVinculadaId: string | null = null;
+    if (tarea.etapaRelacionada && tarea.etapaRelacionada.includes("ACT:")) {
+      const partes = tarea.etapaRelacionada.split("ACT:");
+      actividadVinculadaId = partes[1]?.trim() || null;
+    }
+
     await prisma.$transaction([
       prisma.tarea.update({
         where: { id: tareaId },
@@ -139,7 +146,15 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
           completadaEn: new Date(),
         },
       }),
-      // Si la tarea tenía cuenta asociada, registrar en la bitácora
+      ...(actividadVinculadaId
+        ? [
+            prisma.actividad.updateMany({
+              where: { id: actividadVinculadaId },
+              data: { estadoPaso: "hecho" },
+            }),
+          ]
+        : []),
+      // Si la tarea tenía cuenta asociada, registrar en la bitácora como realizada
       ...(tarea.cuentaId
         ? [
             prisma.actividad.create({
@@ -149,8 +164,9 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
                 usuarioId: currentUser.id,
                 responsable: currentUser.name,
                 tipo: tarea.tipo === "llamada" ? "llamada" : tarea.tipo === "reunion" ? "reunion" : "nota",
-                descripcion: `Tarea completada desde notificaciones: "${tarea.titulo}"`,
+                descripcion: `[✓ Compromiso Realizado] "${tarea.titulo}"`,
                 fechaRealizada: new Date(),
+                estadoPaso: "hecho",
               },
             }),
           ]
@@ -159,6 +175,7 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
 
     revalidatePath("/prospeccion");
     revalidatePath("/reuniones");
+    revalidatePath("/auditoria");
     revalidatePath("/oportunidades/pipeline");
     revalidatePath("/cuentas");
 

@@ -98,11 +98,52 @@ export const ETAPAS_CUENTA = [
 // Tipos de Actividades
 export const TIPOS_ACTIVIDAD = [
   { id: "llamada", label: "Llamada Telefónica" },
-  { id: "reunion", label: "Reunión Comercial" },
-  { id: "email", label: "Correo Electrónico" },
   { id: "whatsapp", label: "WhatsApp" },
+  { id: "email", label: "Correo Electrónico" },
+  { id: "reunion", label: "Reunión Comercial" },
+  { id: "cotizacion", label: "Envío / Gestión de Cotización" },
+  { id: "contrato", label: "Envío / Revisión de Contrato" },
   { id: "nota", label: "Nota Interna" },
-  { id: "otro", label: "Otro" },
+  { id: "otro", label: "Otra Acción" },
+] as const;
+
+// Hitos de Flujo Comercial con SLA sugerido (en horas)
+export const HITOS_FLUJO_SLA = [
+  {
+    id: "cotizacion",
+    label: "📄 Enviar Cotización / Propuesta",
+    slaHorasDefault: 24,
+    prioridad: "alta",
+    descripcion: "El encargado comercial debe preparar y enviar la propuesta en UF",
+  },
+  {
+    id: "contrato",
+    label: "✒️ Enviar / Gestionar Contrato",
+    slaHorasDefault: 48,
+    prioridad: "critica",
+    descripcion: "Preparación y envío de borrador de contrato para firma",
+  },
+  {
+    id: "reunion",
+    label: "📅 Realizar Reunión / Diagnóstico",
+    slaHorasDefault: 48,
+    prioridad: "alta",
+    descripcion: "Reunión comercial o levantamiento técnico agendado",
+  },
+  {
+    id: "llamada",
+    label: "📞 Rellamar / Seguimiento Telefónico",
+    slaHorasDefault: 24,
+    prioridad: "media",
+    descripcion: "Contacto de seguimiento con el prospecto o cliente",
+  },
+  {
+    id: "correo",
+    label: "✉️ Enviar Información / Presentación",
+    slaHorasDefault: 12,
+    prioridad: "media",
+    descripcion: "Envío de brochure, credenciales o antecedentes por correo/WhatsApp",
+  },
 ] as const;
 
 // Tareas

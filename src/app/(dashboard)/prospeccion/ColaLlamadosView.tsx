@@ -10,8 +10,12 @@ import {
   MessageSquare,
   Phone,
   Mail,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { ModalGestionLlamada } from "./ModalGestionLlamada";
+import { ModalRegistrarAccion } from "./ModalRegistrarAccion";
+import { toggleEstadoInteraccionAction } from "@/lib/actions-interacciones";
 import { formatearFechaHora } from "@/lib/constants";
 
 export interface ProspectoItem {
@@ -40,6 +44,7 @@ export interface ProspectoItem {
     usuario: { id: string; name: string } | null;
     proximoPaso: string | null;
     fechaProximoPaso: Date | null;
+    estadoPaso?: string | null;
   } | null;
   totalLlamadas: number;
 }
@@ -318,21 +323,72 @@ export function ColaLlamadosView({
                       {/* 4. Última Gestión & Trazabilidad */}
                       <td className="py-3.5 px-4 max-w-xs">
                         {item.ultimaActividad ? (
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                              <span>{formatearFechaHora(item.ultimaActividad.fechaRealizada)}</span>
-                              <span>·</span>
-                              <span className="text-blue-600 dark:text-blue-400 font-bold">
-                                por {item.ultimaActividad.usuario?.name || item.ultimaActividad.responsable || "Ejecutiva"}
-                              </span>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                <span>{formatearFechaHora(item.ultimaActividad.fechaRealizada)}</span>
+                                <span>·</span>
+                                <span className="text-blue-600 dark:text-blue-400 font-bold">
+                                  por {item.ultimaActividad.usuario?.name || item.ultimaActividad.responsable || "Ejecutiva"}
+                                </span>
+                              </div>
+
+                              {/* Estado Realizada / Pendiente */}
+                              {item.ultimaActividad.estadoPaso === "hecho" || !item.ultimaActividad.proximoPaso ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 text-[10px] font-bold">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Realizada</span>
+                                </span>
+                              ) : null}
                             </div>
+
                             <p className="text-slate-700 dark:text-slate-300 text-[11px] line-clamp-2 leading-relaxed">
                               {item.ultimaActividad.descripcion}
                             </p>
+
                             {item.ultimaActividad.proximoPaso && (
-                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] font-semibold">
-                                <Clock className="w-2.5 h-2.5" />
-                                <span>{item.ultimaActividad.proximoPaso}</span>
+                              <div className="flex items-center justify-between gap-1.5 pt-0.5">
+                                {item.ultimaActividad.estadoPaso === "hecho" ? (
+                                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-[10px] font-bold line-through opacity-80">
+                                    <CheckCircle2 className="w-3 h-3 shrink-0" />
+                                    <span>{item.ultimaActividad.proximoPaso}</span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                        item.ultimaActividad.fechaProximoPaso &&
+                                        new Date(item.ultimaActividad.fechaProximoPaso) < new Date()
+                                          ? "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30"
+                                          : "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30"
+                                      }`}
+                                    >
+                                      {item.ultimaActividad.fechaProximoPaso &&
+                                      new Date(item.ultimaActividad.fechaProximoPaso) < new Date() ? (
+                                        <AlertTriangle className="w-3 h-3 shrink-0" />
+                                      ) : (
+                                        <Clock className="w-3 h-3 shrink-0" />
+                                      )}
+                                      <span className="truncate max-w-[180px]">
+                                        {item.ultimaActividad.proximoPaso}
+                                      </span>
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={async () => {
+                                        if (item.ultimaActividad) {
+                                          await toggleEstadoInteraccionAction(item.ultimaActividad.id, true);
+                                        }
+                                      }}
+                                      title="Marcar compromiso como Realizado (Tick Verde)"
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shadow-xs transition shrink-0"
+                                    >
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      <span>Hecho</span>
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             )}
                           </div>
@@ -352,14 +408,29 @@ export function ColaLlamadosView({
 
                       {/* 6. Acción Rápida */}
                       <td className="py-3.5 px-4 text-right">
-                        <ModalGestionLlamada
-                          cuenta={{
-                            id: item.id,
-                            razonSocial: item.razonSocial,
-                            rut: item.rut,
-                          }}
-                          contacto={item.contactoPrincipal}
-                        />
+                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                          <ModalGestionLlamada
+                            cuenta={{
+                              id: item.id,
+                              razonSocial: item.razonSocial,
+                              rut: item.rut,
+                            }}
+                            contacto={item.contactoPrincipal}
+                            usuarios={usuarios}
+                            currentUserId={currentUserId}
+                          />
+
+                          <ModalRegistrarAccion
+                            cuenta={{
+                              id: item.id,
+                              razonSocial: item.razonSocial,
+                              rut: item.rut,
+                            }}
+                            contacto={item.contactoPrincipal}
+                            usuarios={usuarios}
+                            currentUserId={currentUserId}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );

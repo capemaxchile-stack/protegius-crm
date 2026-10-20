@@ -28,9 +28,16 @@ interface ActividadModalProps {
       nombre: string;
     };
   }[];
+  usuarios?: { id: string; name: string }[];
+  currentUserId?: string;
 }
 
-export function ActividadModal({ cuentaId, contactos }: ActividadModalProps) {
+export function ActividadModal({
+  cuentaId,
+  contactos,
+  usuarios = [],
+  currentUserId,
+}: ActividadModalProps) {
   const [open, setOpen] = useState(false);
 
   const [state, formAction] = useFormState<ActionState | null, FormData>(
@@ -145,17 +152,54 @@ export function ActividadModal({ cuentaId, contactos }: ActividadModalProps) {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1" htmlFor="fechaProximoPaso">
-                    Fecha del compromiso
-                  </label>
-                  <input
-                    id="fechaProximoPaso"
-                    name="fechaProximoPaso"
-                    type="date"
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1" htmlFor="fechaProximoPaso">
+                      Fecha límite (SLA)
+                    </label>
+                    <input
+                      id="fechaProximoPaso"
+                      name="fechaProximoPaso"
+                      type="date"
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1" htmlFor="prioridad">
+                      Prioridad SLA
+                    </label>
+                    <select
+                      id="prioridad"
+                      name="prioridad"
+                      defaultValue="alta"
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-white"
+                    >
+                      <option value="critica">🚨 Crítica</option>
+                      <option value="alta">⚡ Alta</option>
+                      <option value="media">📌 Media</option>
+                    </select>
+                  </div>
                 </div>
+
+                {usuarios.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1" htmlFor="encargadoId">
+                      Encargado Responsable del Compromiso
+                    </label>
+                    <select
+                      id="encargadoId"
+                      name="encargadoId"
+                      defaultValue={currentUserId}
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white"
+                    >
+                      {usuarios.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.name} {u.id === currentUserId ? "(Yo)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">

@@ -30,6 +30,7 @@ yarn-error.log*
 # environment variables
 .env
 .env*.local
+/data/alertas-config.json
 
 # vercel
 .vercel

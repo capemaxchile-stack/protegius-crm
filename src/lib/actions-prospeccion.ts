@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { notificarEventoSLA } from "@/lib/alertas-externas";
 
 export interface ProspeccionActionState {
   error?: string;
@@ -20,6 +21,8 @@ export async function registrarLlamadaProspeccionAction(
   const personaId = formData.get("personaId")?.toString().trim() || null;
   const resultado = formData.get("resultado")?.toString().trim();
   const observacion = formData.get("observacion")?.toString().trim() || "";
+  const encargadoId = formData.get("encargadoId")?.toString().trim() || currentUser.id;
+  const fechaLimitePropuesta = formData.get("fechaLimitePropuesta")?.toString().trim() || null;
 
   // Campos específicos de rellamada
   const fechaRellamada = formData.get("fechaRellamada")?.toString().trim() || null;
@@ -41,14 +44,19 @@ export async function registrarLlamadaProspeccionAction(
   }
 
   try {
-    const cuenta = await prisma.cuenta.findUnique({
-      where: { id: cuentaId },
-      include: { responsable: true },
-    });
+    const [cuenta, encargadoUser] = await Promise.all([
+      prisma.cuenta.findUnique({
+        where: { id: cuentaId },
+        include: { responsable: true },
+      }),
+      prisma.user.findUnique({ where: { id: encargadoId } }),
+    ]);
 
     if (!cuenta) {
       return { error: "No se encontró la empresa seleccionada." };
     }
+
+    const nombreEncargado = encargadoUser?.name || currentUser.name;
 
     let personaNombre = "";
     if (personaId) {
@@ -56,14 +64,39 @@ export async function registrarLlamadaProspeccionAction(
       if (persona) personaNombre = persona.nombre;
     }
 
+    const tieneProximoPaso =
+      resultado === "reunion_agendada" ||
+      resultado === "propuesta_solicitada" ||
+      Boolean(fechaRellamada);
+
+    const fechaPasoCalculada =
+      resultado === "reunion_agendada" && fechaReunion
+        ? new Date(`${fechaReunion}T${horaReunion}:00`)
+        : resultado === "propuesta_solicitada"
+        ? fechaLimitePropuesta
+          ? new Date(`${fechaLimitePropuesta}T18:00:00`)
+          : new Date(Date.now() + 24 * 60 * 60 * 1000)
+        : fechaRellamada
+        ? new Date(`${fechaRellamada}T${horaRellamada}:00`)
+        : null;
+
+    const textoProximoPaso =
+      resultado === "reunion_agendada"
+        ? `Reunión ${modalidadReunion.toUpperCase()} el ${fechaReunion} ${horaReunion} [Resp: ${nombreEncargado}]`
+        : resultado === "propuesta_solicitada"
+        ? `Enviar Cotización / Propuesta a ${cuenta.razonSocial} [Resp: ${nombreEncargado}]`
+        : fechaRellamada
+        ? `Rellamar el ${fechaRellamada} ${horaRellamada} [Resp: ${nombreEncargado}]`
+        : null;
+
     await prisma.$transaction(async (tx) => {
       // 1. Armar descripción con trazabilidad
       let textoDescripcion = `[${resultado.toUpperCase().replace(/_/g, " ")}]`;
       if (personaNombre) textoDescripcion += ` Contactado: ${personaNombre}.`;
       if (observacion) textoDescripcion += ` Detalle: ${observacion}`;
 
-      // 2. Registrar la Actividad con el usuario autenticado
-      await tx.actividad.create({
+      // 2. Registrar la Actividad con el usuario autenticado y estado explícito
+      const act = await tx.actividad.create({
         data: {
           cuentaId,
           personaId: personaId || null,
@@ -72,18 +105,9 @@ export async function registrarLlamadaProspeccionAction(
           tipo: resultado === "reunion_agendada" ? "reunion" : "llamada",
           descripcion: textoDescripcion,
           fechaRealizada: new Date(),
-          proximoPaso:
-            resultado === "reunion_agendada"
-              ? `Reunión ${modalidadReunion.toUpperCase()} el ${fechaReunion} ${horaReunion}`
-              : fechaRellamada
-              ? `Rellamar el ${fechaRellamada} ${horaRellamada}`
-              : null,
-          fechaProximoPaso:
-            resultado === "reunion_agendada" && fechaReunion
-              ? new Date(`${fechaReunion}T${horaReunion}:00`)
-              : fechaRellamada
-              ? new Date(`${fechaRellamada}T${horaRellamada}:00`)
-              : null,
+          proximoPaso: textoProximoPaso,
+          fechaProximoPaso: fechaPasoCalculada,
+          estadoPaso: tieneProximoPaso ? "pendiente" : "hecho",
         },
       });
 
@@ -91,7 +115,7 @@ export async function registrarLlamadaProspeccionAction(
       if (resultado === "reunion_agendada" && fechaReunion) {
         const fechaHoraReunion = new Date(`${fechaReunion}T${horaReunion}:00`);
 
-        // Crear tarea de reunión
+        // Crear tarea de reunión con auditoría de origen
         await tx.tarea.create({
           data: {
             titulo: `📅 Reunión: ${cuenta.razonSocial} (${modalidadReunion})`,
@@ -99,9 +123,10 @@ export async function registrarLlamadaProspeccionAction(
             tipo: "reunion",
             prioridad: "alta",
             fechaVencimiento: fechaHoraReunion,
+            etapaRelacionada: `ORIGEN:${currentUser.name}|ACT:${act.id}`,
             cuentaId,
             personaId: personaId || null,
-            responsableId: currentUser.id,
+            responsableId: encargadoId,
           },
         });
 
@@ -114,7 +139,7 @@ export async function registrarLlamadaProspeccionAction(
             etapa: "reunion_agendada",
             estado: "abierta",
             valorEstimado: montoEstimadoUF || 10,
-            responsableId: currentUser.id,
+            responsableId: encargadoId,
             fechaCierreEstimada: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
           },
         });
@@ -137,7 +162,7 @@ export async function registrarLlamadaProspeccionAction(
             etapa: "propuesta_enviada",
             estado: "abierta",
             valorEstimado: montoEstimadoUF || 15,
-            responsableId: currentUser.id,
+            responsableId: encargadoId,
             fechaCierreEstimada: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           },
         });
@@ -145,13 +170,14 @@ export async function registrarLlamadaProspeccionAction(
         await tx.tarea.create({
           data: {
             titulo: `📄 Enviar propuesta a ${cuenta.razonSocial}`,
-            descripcion: `El cliente solicitó cotización. ${observacion}`,
+            descripcion: `Solicitado por ${currentUser.name}. ${observacion}`,
             tipo: "correo",
             prioridad: "alta",
-            fechaVencimiento: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            fechaVencimiento: fechaPasoCalculada,
+            etapaRelacionada: `ORIGEN:${currentUser.name}|ACT:${act.id}`,
             cuentaId,
             personaId: personaId || null,
-            responsableId: currentUser.id,
+            responsableId: encargadoId,
           },
         });
 
@@ -169,13 +195,14 @@ export async function registrarLlamadaProspeccionAction(
         await tx.tarea.create({
           data: {
             titulo: `📞 Rellamar a ${cuenta.razonSocial} (${personaNombre || "Contacto"})`,
-            descripcion: `Programado tras llamada previa. Motivo: ${resultado === "no_contesta" ? "No contestó" : "Pidió volver a llamar"}. ${observacion}`,
+            descripcion: `Programado por ${currentUser.name}. Motivo: ${resultado === "no_contesta" ? "No contestó" : "Pidió volver a llamar"}. ${observacion}`,
             tipo: "llamada",
             prioridad: "media",
             fechaVencimiento: fechaHoraRellamada,
+            etapaRelacionada: `ORIGEN:${currentUser.name}|ACT:${act.id}`,
             cuentaId,
             personaId: personaId || null,
-            responsableId: currentUser.id,
+            responsableId: encargadoId,
           },
         });
 
@@ -205,10 +232,25 @@ export async function registrarLlamadaProspeccionAction(
       }
     });
 
+    if (tieneProximoPaso && textoProximoPaso) {
+      await notificarEventoSLA({
+        tipoEvento: "asignacion",
+        empresa: cuenta.razonSocial,
+        accion: textoProximoPaso.replace(/\s*\[Resp:.*\]$/, ""),
+        originador: currentUser.name,
+        responsable: nombreEncargado,
+        emailResponsable: encargadoUser?.email,
+        fechaLimite: fechaPasoCalculada,
+        prioridad: resultado === "propuesta_solicitada" || resultado === "reunion_agendada" ? "alta" : "media",
+        detalle: observacion,
+      });
+    }
+
     revalidatePath("/prospeccion");
     revalidatePath("/oportunidades");
     revalidatePath("/oportunidades/pipeline");
     revalidatePath("/reuniones");
+    revalidatePath("/auditoria");
     revalidatePath("/cuentas");
     revalidatePath(`/cuentas/${cuentaId}`);
 
