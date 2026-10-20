@@ -132,7 +132,7 @@ export async function obtenerNotificacionesUsuarioAction(): Promise<Notificacion
 
 export async function completarTareaNotificacionAction(tareaId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const currentUser = await requireAuth();
+    await requireAuth();
 
     const tarea = await prisma.tarea.findUnique({
       where: { id: tareaId },
