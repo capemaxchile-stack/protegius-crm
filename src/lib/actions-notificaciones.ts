@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
 
 export interface NotificacionItem {
   id: string;
@@ -12,6 +13,7 @@ export interface NotificacionItem {
   fechaVencimiento: Date | null;
   estado: string;
   prioridad: string;
+  responsableName?: string | null;
   cuenta?: {
     id: string;
     razonSocial: string;
@@ -36,11 +38,13 @@ export interface NotificacionesResumen {
 export async function obtenerNotificacionesUsuarioAction(): Promise<NotificacionesResumen> {
   const currentUser = await requireAuth();
 
+  await sincronizarInteraccionesYTareas();
+
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
   const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  // Buscar tareas pendientes asignadas al usuario (o todas si es ADMIN)
+  // Cada usuario comercial ve exclusivamente sus propias alertas; ADMIN supervisa todas
   const whereClause: Record<string, unknown> = {
     estado: "pendiente",
   };
@@ -65,12 +69,18 @@ export async function obtenerNotificacionesUsuarioAction(): Promise<Notificacion
           telefono: true,
         },
       },
+      responsable: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     orderBy: [
       { fechaVencimiento: "asc" },
       { prioridad: "desc" },
     ],
-    take: 30,
+    take: 40,
   });
 
   let totalHoy = 0;
@@ -103,6 +113,7 @@ export async function obtenerNotificacionesUsuarioAction(): Promise<Notificacion
       fechaVencimiento: t.fechaVencimiento,
       estado: t.estado,
       prioridad: t.prioridad,
+      responsableName: t.responsable?.name || null,
       cuenta: t.cuenta,
       persona: t.persona,
       esVencida,
@@ -153,21 +164,20 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
               data: { estadoPaso: "hecho" },
             }),
           ]
-        : []),
-      // Si la tarea tenía cuenta asociada, registrar en la bitácora como realizada
-      ...(tarea.cuentaId
+        : tarea.cuentaId
         ? [
-            prisma.actividad.create({
-              data: {
+            prisma.actividad.updateMany({
+              where: {
                 cuentaId: tarea.cuentaId,
-                personaId: tarea.personaId || null,
-                usuarioId: currentUser.id,
-                responsable: currentUser.name,
-                tipo: tarea.tipo === "llamada" ? "llamada" : tarea.tipo === "reunion" ? "reunion" : "nota",
-                descripcion: `[✓ Compromiso Realizado] "${tarea.titulo}"`,
-                fechaRealizada: new Date(),
-                estadoPaso: "hecho",
+                estadoPaso: "pendiente",
+                OR: [
+                  { proximoPaso: { contains: tarea.titulo } },
+                  ...(tarea.titulo.toLowerCase().includes("rellamar")
+                    ? [{ proximoPaso: { contains: "Rellamar" } }]
+                    : []),
+                ],
               },
+              data: { estadoPaso: "hecho" },
             }),
           ]
         : []),
@@ -178,6 +188,7 @@ export async function completarTareaNotificacionAction(tareaId: string): Promise
     revalidatePath("/auditoria");
     revalidatePath("/oportunidades/pipeline");
     revalidatePath("/cuentas");
+    if (tarea.cuentaId) revalidatePath(`/cuentas/${tarea.cuentaId}`);
 
     return { success: true };
   } catch (error) {

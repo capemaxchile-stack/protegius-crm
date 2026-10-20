@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import {
   guardarConfigAlertasAction,
   probarConexionTelegramAction,
+  probarConexionEmailAction,
   detectarChatIdTelegramAction,
   ejecutarBarridoAlertasSLAAction,
   InteraccionActionState,
@@ -24,6 +25,7 @@ import {
   ArrowRight,
   UserCheck,
   Building2,
+  Mail,
 } from "lucide-react";
 
 export interface ItemAuditoriaSLA {
@@ -84,6 +86,8 @@ export function AuditoriaSLAView({
 
   const [botTokenInput, setBotTokenInput] = useState(config.telegramBotToken);
   const [chatIdInput, setChatIdInput] = useState(config.telegramChatId);
+  const [emailsInput, setEmailsInput] = useState(config.emailsSupervisores);
+  const [webhookInput, setWebhookInput] = useState(config.emailWebhookUrl);
   const [feedbackBot, setFeedbackBot] = useState<{ ok?: boolean; msg?: string } | null>(null);
   const [enviandoBot, setEnviandoBot] = useState(false);
 
@@ -126,6 +130,27 @@ export function AuditoriaSLAView({
     }
   };
 
+  const handleProbarEmail = async () => {
+    setEnviandoBot(true);
+    setFeedbackBot(null);
+    try {
+      const res = await probarConexionEmailAction(emailsInput, webhookInput);
+      if (res.ok) {
+        setFeedbackBot({
+          ok: true,
+          msg: `¡Correo de prueba enviado con éxito vía n8n a: ${emailsInput}! Revisa tu bandeja de entrada.`,
+        });
+      } else {
+        setFeedbackBot({
+          ok: false,
+          msg: res.error || "No se pudo enviar el correo de prueba.",
+        });
+      }
+    } finally {
+      setEnviandoBot(false);
+    }
+  };
+
   const handleEnviarBarridoSLA = async () => {
     setEnviandoBot(true);
     setFeedbackBot(null);
@@ -136,13 +161,13 @@ export function AuditoriaSLAView({
           ok: true,
           msg:
             res.enviadas > 0
-              ? `¡Reporte enviado al grupo de Telegram con ${res.enviadas} alertas activas!`
+              ? `¡Reporte enviado (${res.detalles || "Telegram / Correo"}) con ${res.enviadas} alertas activas!`
               : "No hay compromisos vencidos ni próximos a vencer en este momento.",
         });
       } else {
         setFeedbackBot({
           ok: false,
-          msg: res.error || "Error al enviar reporte a Telegram.",
+          msg: res.error || "Error al enviar reporte de alertas.",
         });
       }
     } finally {
@@ -290,18 +315,20 @@ export function AuditoriaSLAView({
             Ver Todos ({items.length})
           </button>
 
-          <select
-            value={filtroResponsable}
-            onChange={(e) => setFiltroResponsable(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300"
-          >
-            <option value="todos">Todos los Responsables</option>
-            {usuarios.map((u) => (
-              <option key={u.id} value={u.id}>
-                Encargado: {u.name}
-              </option>
-            ))}
-          </select>
+          {isAdmin && (
+            <select
+              value={filtroResponsable}
+              onChange={(e) => setFiltroResponsable(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300"
+            >
+              <option value="todos">Todos los Responsables</option>
+              {usuarios.map((u) => (
+                <option key={u.id} value={u.id}>
+                  Encargado: {u.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -312,7 +339,13 @@ export function AuditoriaSLAView({
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition disabled:opacity-50"
           >
             <BellRing className="w-3.5 h-3.5" />
-            <span>{enviandoBot ? "Enviando..." : "Alertar SLA a Grupo Telegram"}</span>
+            <span>
+              {enviandoBot
+                ? "Enviando..."
+                : isAdmin
+                ? "Alertar SLA (Telegram + Correo)"
+                : "Enviar Mis Alertas por Correo"}
+            </span>
           </button>
 
           {isAdmin && (
@@ -517,31 +550,48 @@ export function AuditoriaSLAView({
                   </label>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                       ✉️ Alertas por Correo (Webhook / n8n / SMTP)
                     </span>
-                    <input
-                      type="checkbox"
-                      name="emailEnabled"
-                      defaultChecked={config.emailEnabled}
-                    />
+                    <label className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="emailEnabled"
+                        defaultChecked={config.emailEnabled}
+                      />
+                      <span>Habilitar Correo</span>
+                    </label>
                   </div>
                   <input
                     type="text"
                     name="emailsSupervisores"
-                    defaultValue={config.emailsSupervisores}
+                    value={emailsInput}
+                    onChange={(e) => setEmailsInput(e.target.value)}
                     placeholder="Correos supervisores (separados por coma)"
                     className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white"
                   />
                   <input
                     type="text"
                     name="emailWebhookUrl"
-                    defaultValue={config.emailWebhookUrl}
+                    value={webhookInput}
+                    onChange={(e) => setWebhookInput(e.target.value)}
                     placeholder="URL Webhook de Correo (ej. n8n / Make / Resend)"
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-900 dark:text-white"
                   />
+                  <p className="text-[10px] text-slate-500">
+                    Nota: Cada ejecutivo comercial recibe por correo <strong>únicamente sus propias alertas</strong>. El correo de Supervisores recibe la copia global consolidada.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={enviandoBot}
+                    onClick={handleProbarEmail}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-xs font-bold hover:bg-emerald-100 transition"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Probar Envío de Correo Ahora</span>
+                  </button>
                 </div>
               </div>
             </div>

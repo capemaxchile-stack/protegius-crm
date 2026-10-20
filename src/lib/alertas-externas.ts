@@ -196,28 +196,37 @@ export async function enviarMensajeTelegram(
   }
 }
 
-export async function enviarAlertaEmailWebhook(payload: {
-  asunto: string;
-  mensaje: string;
-  destinatarios?: string;
-  empresa?: string;
-  accion?: string;
-  responsable?: string;
-  originador?: string;
-  fechaLimite?: string;
-  tipoEvento?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+export async function enviarAlertaEmailWebhook(
+  payload: {
+    asunto: string;
+    mensaje: string;
+    destinatarios?: string;
+    empresa?: string;
+    accion?: string;
+    responsable?: string;
+    originador?: string;
+    fechaLimite?: string;
+    tipoEvento?: string;
+  },
+  overrideWebhookUrl?: string
+): Promise<{ ok: boolean; error?: string }> {
   const config = await obtenerConfigAlertasAsync();
-  if (!config.emailEnabled || !config.emailWebhookUrl) {
-    return { ok: false, error: "Webhook de correo n8n no habilitado." };
+  const webhookUrl = (overrideWebhookUrl ?? config.emailWebhookUrl).trim();
+  if (!webhookUrl) {
+    return { ok: false, error: "Falta configurar la URL del Webhook de correo (n8n)." };
+  }
+
+  const destinatariosFinal = (payload.destinatarios ?? config.emailsSupervisores).trim();
+  if (!destinatariosFinal) {
+    return { ok: false, error: "Falta indicar al menos un correo destinatario." };
   }
 
   try {
-    const response = await fetch(config.emailWebhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        to: payload.destinatarios || config.emailsSupervisores,
+        to: destinatariosFinal,
         subject: payload.asunto,
         message: payload.mensaje,
         empresa: payload.empresa || "",

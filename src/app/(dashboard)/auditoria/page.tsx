@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { obtenerConfigAlertasAsync } from "@/lib/alertas-externas";
+import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
 import { AuditoriaSLAView, ItemAuditoriaSLA } from "./AuditoriaSLAView";
 import { ShieldAlert, Sparkles } from "lucide-react";
 
@@ -8,12 +9,18 @@ export const dynamic = "force-dynamic";
 
 export default async function AuditoriaSLAPage() {
   const currentUser = await requireAuth();
+
+  // Sincronizar compromisos de interacciones históricas antes de listar
+  await sincronizarInteraccionesYTareas();
+
   const config = await obtenerConfigAlertasAsync();
+  const isAdmin = currentUser.role === "ADMIN";
 
   const [tareas, usuarios] = await Promise.all([
     prisma.tarea.findMany({
+      where: isAdmin ? undefined : { responsableId: currentUser.id },
       orderBy: [{ estado: "desc" }, { fechaVencimiento: "asc" }],
-      take: 150,
+      take: 200,
       include: {
         cuenta: { select: { id: true, razonSocial: true } },
         responsable: { select: { id: true, name: true, email: true } },
@@ -86,11 +93,13 @@ export default async function AuditoriaSLAPage() {
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
-              Control Supervisores
+              {isAdmin ? "Control Supervisores" : `Mis Compromisos (${currentUser.name})`}
             </span>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Trazabilidad de compromisos entre vendedores, encargados de cotizaciones y contratos, con semáforo SLA y alertas por Telegram / Correo.
+            {isAdmin
+              ? "Trazabilidad global de compromisos entre vendedores, encargados de cotizaciones y contratos, con semáforo SLA y alertas por Telegram / Correo."
+              : "Visualización exclusiva de tus compromisos comerciales, cotizaciones asignadas y fechas límite SLA."}
           </p>
         </div>
       </div>
@@ -99,7 +108,7 @@ export default async function AuditoriaSLAPage() {
         items={items}
         usuarios={usuarios}
         config={config}
-        isAdmin={currentUser.role === "ADMIN"}
+        isAdmin={isAdmin}
       />
     </div>
   );

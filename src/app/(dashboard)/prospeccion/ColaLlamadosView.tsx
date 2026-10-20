@@ -52,17 +52,23 @@ export interface ProspectoItem {
 interface ColaLlamadosViewProps {
   prospectos: ProspectoItem[];
   currentUserId: string;
+  isAdmin?: boolean;
   usuarios: { id: string; name: string }[];
 }
 
 export function ColaLlamadosView({
   prospectos,
   currentUserId,
+  isAdmin = false,
   usuarios,
 }: ColaLlamadosViewProps) {
   const [busqueda, setBusqueda] = useState("");
-  const [filtroTab, setFiltroTab] = useState<"todos" | "mis_asignados" | "rellamadas_hoy" | "sin_contactar" | "reuniones">("todos");
-  const [filtroResponsable, setFiltroResponsable] = useState<string>("todos");
+  const [filtroTab, setFiltroTab] = useState<"todos" | "mis_asignados" | "rellamadas_hoy" | "sin_contactar" | "reuniones">(
+    isAdmin ? "todos" : "mis_asignados"
+  );
+  const [filtroResponsable, setFiltroResponsable] = useState<string>(
+    isAdmin ? "todos" : currentUserId
+  );
 
   const hoyStr = new Date().toISOString().split("T")[0];
 
@@ -95,6 +101,7 @@ export function ColaLlamadosView({
       }
       if (filtroTab === "rellamadas_hoy") {
         if (!p.ultimaActividad?.fechaProximoPaso) return false;
+        if (p.ultimaActividad.estadoPaso === "hecho") return false;
         const fechaPasoStr = new Date(p.ultimaActividad.fechaProximoPaso).toISOString().split("T")[0];
         return fechaPasoStr <= hoyStr;
       }
@@ -106,14 +113,20 @@ export function ColaLlamadosView({
     });
   }, [prospectos, busqueda, filtroTab, filtroResponsable, currentUserId, hoyStr]);
 
-  // Contadores para las pestañas
-  const conteoSinContactar = prospectos.filter((p) => p.totalLlamadas === 0).length;
-  const conteoRellamadasHoy = prospectos.filter((p) => {
+  // Contadores para las pestañas (respetando el filtro de comercial actual si no es Admin)
+  const baseConteo = useMemo(() => {
+    if (filtroResponsable === "todos") return prospectos;
+    return prospectos.filter((p) => p.responsable?.id === filtroResponsable);
+  }, [prospectos, filtroResponsable]);
+
+  const conteoSinContactar = baseConteo.filter((p) => p.totalLlamadas === 0).length;
+  const conteoRellamadasHoy = baseConteo.filter((p) => {
     if (!p.ultimaActividad?.fechaProximoPaso) return false;
+    if (p.ultimaActividad.estadoPaso === "hecho") return false;
     return new Date(p.ultimaActividad.fechaProximoPaso).toISOString().split("T")[0] <= hoyStr;
   }).length;
   const conteoMisAsignados = prospectos.filter((p) => p.responsable?.id === currentUserId).length;
-  const conteoReuniones = prospectos.filter((p) => p.etapa === "diagnostico" || p.etapa === "reunion_agendada").length;
+  const conteoReuniones = baseConteo.filter((p) => p.etapa === "diagnostico" || p.etapa === "reunion_agendada").length;
 
   return (
     <div className="space-y-4">

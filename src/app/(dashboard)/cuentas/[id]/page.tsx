@@ -20,6 +20,7 @@ import {
   toggleEstadoContactoAction,
   marcarContactoPrincipalAction,
 } from "@/lib/actions-cuentas";
+import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
 
 export default async function CuentaDetallePage({
   params,
@@ -27,6 +28,9 @@ export default async function CuentaDetallePage({
   params: { id: string };
 }) {
   const currentUser = await requireAuth();
+
+  // Sincronizar compromisos de interacciones históricas con la tabla de tareas
+  await sincronizarInteraccionesYTareas();
 
   const [cuenta, usuarios] = await Promise.all([
     prisma.cuenta.findUnique({

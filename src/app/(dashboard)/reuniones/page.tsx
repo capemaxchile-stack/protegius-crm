@@ -8,9 +8,13 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { formatearFechaHora } from "@/lib/constants";
+import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
 
 export default async function ReunionesPage() {
-  await requireAuth();
+  const currentUser = await requireAuth();
+  await sincronizarInteraccionesYTareas();
+
+  const isAdmin = currentUser.role === "ADMIN";
 
   const finDeHoy = new Date();
   finDeHoy.setHours(23, 59, 59, 999);
@@ -19,11 +23,12 @@ export default async function ReunionesPage() {
   en7Dias.setDate(en7Dias.getDate() + 7);
   en7Dias.setHours(23, 59, 59, 999);
 
-  // Obtener tareas de tipo reunión y actividades de reunión
+  // Obtener tareas de tipo reunión y actividades de reunión (filtradas por comercial si no es Admin)
   const [reuniones, actividadesReunion] = await Promise.all([
     prisma.tarea.findMany({
       where: {
         tipo: "reunion",
+        ...(isAdmin ? {} : { responsableId: currentUser.id }),
       },
       orderBy: { fechaVencimiento: "asc" },
       include: {
@@ -35,6 +40,7 @@ export default async function ReunionesPage() {
     prisma.actividad.findMany({
       where: {
         tipo: "reunion",
+        ...(isAdmin ? {} : { usuarioId: currentUser.id }),
       },
       orderBy: { fechaRealizada: "desc" },
       take: 10,

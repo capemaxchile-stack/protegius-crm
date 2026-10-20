@@ -7,6 +7,7 @@ import {
   obtenerConfigAlertasAsync,
   guardarConfigAlertasAsync,
   enviarMensajeTelegram,
+  enviarAlertaEmailWebhook,
   notificarEventoSLA,
   AlertasConfig,
 } from "@/lib/alertas-externas";
@@ -187,6 +188,7 @@ export async function toggleEstadoInteraccionAction(
     }
 
     const nuevoEstado = marcarHecho ? "hecho" : "pendiente";
+    const pasoLimpio = act.proximoPaso ? act.proximoPaso.replace(/\s*\[Resp:.*\]$/, "").trim() : "";
 
     await prisma.$transaction(async (tx) => {
       await tx.actividad.update({
@@ -202,8 +204,14 @@ export async function toggleEstadoInteraccionAction(
           cuentaId: act.cuentaId,
           OR: [
             { etapaRelacionada: { contains: `ACT:${actividadId}` } },
-            ...(act.proximoPaso
-              ? [{ titulo: { equals: act.proximoPaso.replace(/\s*\[Resp:.*\]$/, "") } }]
+            ...(pasoLimpio
+              ? [
+                  { titulo: { equals: pasoLimpio } },
+                  { titulo: { contains: pasoLimpio } },
+                  ...(pasoLimpio.toLowerCase().startsWith("rellamar")
+                    ? [{ titulo: { contains: "Rellamar" } }]
+                    : []),
+                ]
               : []),
           ],
         },
@@ -419,6 +427,122 @@ export async function guardarConfigAlertasAction(
 }
 
 /**
+ * Sincroniza bidireccionalmente las Actividades históricas con estadoPaso = "pendiente"
+ * y la tabla de Tareas para que ningún compromiso quede huérfano ni desincronizado.
+ */
+export async function sincronizarInteraccionesYTareas(): Promise<void> {
+  try {
+    const actividadesPendientes = await prisma.actividad.findMany({
+      where: {
+        estadoPaso: "pendiente",
+      },
+      include: {
+        cuenta: { select: { id: true, razonSocial: true, responsableId: true } },
+        usuario: { select: { id: true, name: true } },
+      },
+    });
+
+    if (actividadesPendientes.length === 0) return;
+
+    for (const act of actividadesPendientes) {
+      const pasoRaw = act.proximoPaso?.trim() || "";
+      if (!pasoRaw) {
+        // Sin compromiso futuro: marcar como realizada
+        await prisma.actividad.update({
+          where: { id: act.id },
+          data: { estadoPaso: "hecho" },
+        });
+        continue;
+      }
+
+      const pasoLimpio = pasoRaw.replace(/\s*\[Resp:.*\]$/, "").trim();
+
+      // Buscar tareas de la misma cuenta
+      const tareasCuenta = await prisma.tarea.findMany({
+        where: { cuentaId: act.cuentaId },
+      });
+
+      const tareaVinculada = tareasCuenta.find((t) => {
+        if (t.etapaRelacionada && t.etapaRelacionada.includes(`ACT:${act.id}`)) {
+          return true;
+        }
+        if (t.titulo.trim().toLowerCase() === pasoLimpio.toLowerCase()) {
+          return true;
+        }
+        if (
+          pasoLimpio.toLowerCase().startsWith("rellamar") &&
+          t.titulo.toLowerCase().includes("rellamar")
+        ) {
+          return true;
+        }
+        return false;
+      });
+
+      if (tareaVinculada) {
+        if (tareaVinculada.estado === "completada") {
+          // La tarea ya fue completada (ej. desde campanita): sincronizar actividad a "hecho"
+          await prisma.actividad.update({
+            where: { id: act.id },
+            data: { estadoPaso: "hecho" },
+          });
+        } else {
+          // Asegurar que la tarea pendiente tenga el vínculo ACT:<id> y responsable asignado
+          const necesitaUpdateVinculo =
+            !tareaVinculada.etapaRelacionada ||
+            !tareaVinculada.etapaRelacionada.includes(`ACT:${act.id}`);
+          const responsableFinal =
+            tareaVinculada.responsableId || act.usuarioId || act.cuenta.responsableId || null;
+
+          if (necesitaUpdateVinculo || !tareaVinculada.responsableId) {
+            const autorOrigen = act.usuario?.name || act.responsable || "Ejecutivo";
+            await prisma.tarea.update({
+              where: { id: tareaVinculada.id },
+              data: {
+                etapaRelacionada: `ORIGEN:${autorOrigen}|ACT:${act.id}`,
+                responsableId: responsableFinal,
+                fechaVencimiento:
+                  tareaVinculada.fechaVencimiento || act.fechaProximoPaso || act.fechaRealizada,
+              },
+            });
+          }
+        }
+      } else {
+        // Actividad con compromiso pendiente huérfana (como la reunión de A Toda Máquina):
+        // Crear su tarea correspondiente en el flujo SLA
+        const autorOrigen = act.usuario?.name || act.responsable || "Ejecutivo";
+        const responsableId = act.usuarioId || act.cuenta.responsableId || null;
+        const tipoTarea =
+          act.tipo === "reunion"
+            ? "reunion"
+            : act.tipo === "email" || act.tipo === "cotizacion" || pasoLimpio.toLowerCase().includes("propuesta") || pasoLimpio.toLowerCase().includes("cotizaci")
+            ? "correo"
+            : act.tipo === "llamada"
+            ? "llamada"
+            : "seguimiento";
+
+        await prisma.tarea.create({
+          data: {
+            titulo: pasoLimpio,
+            descripcion: `Originado por ${autorOrigen}: ${act.descripcion}`,
+            tipo: tipoTarea,
+            prioridad: "alta",
+            estado: "pendiente",
+            fechaVencimiento: act.fechaProximoPaso || act.fechaRealizada,
+            etapaRelacionada: `ORIGEN:${autorOrigen}|ACT:${act.id}`,
+            cuentaId: act.cuentaId,
+            oportunidadId: act.oportunidadId,
+            personaId: act.personaId,
+            responsableId,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error sincronizando interacciones y tareas:", err);
+  }
+}
+
+/**
  * Envía un mensaje de prueba al grupo de Telegram configurado.
  */
 export async function probarConexionTelegramAction(
@@ -435,6 +559,42 @@ export async function probarConexionTelegramAction(
   ].join("\n");
 
   return enviarMensajeTelegram(mensaje, token, chatId);
+}
+
+/**
+ * Envía un correo de prueba vía Webhook de n8n para validar la entrega de alertas por email.
+ */
+export async function probarConexionEmailAction(
+  emailsDestino?: string,
+  webhookUrl?: string
+): Promise<{ ok: boolean; error?: string }> {
+  const admin = await requireAdmin();
+  const config = await obtenerConfigAlertasAsync();
+  const destinatarios = (emailsDestino ?? config.emailsSupervisores ?? admin.email).trim();
+
+  const mensajePrueba = [
+    "✅ [PRUEBA DE CORREO EXITOSA - PROTEGIUS CRM]",
+    "",
+    "El sistema de Alertas SLA y Seguimiento Comercial por Correo (vía n8n) está conectado y operativo.",
+    `• Probado por: ${admin.name} (${admin.email})`,
+    `• Destinatarios configurados: ${destinatarios}`,
+    `• Fecha y hora: ${new Date().toLocaleString("es-CL")}`,
+  ].join("\n");
+
+  return enviarAlertaEmailWebhook(
+    {
+      asunto: "[Protegius CRM] ✅ Prueba de Conexión de Alertas SLA por Correo",
+      mensaje: mensajePrueba,
+      destinatarios,
+      empresa: "Protegius CRM (Prueba de Sistema)",
+      accion: "Validación de canal de correo n8n",
+      responsable: admin.name,
+      originador: admin.name,
+      fechaLimite: new Date().toLocaleString("es-CL"),
+      tipoEvento: "prueba_conexion",
+    },
+    webhookUrl
+  );
 }
 
 /**
@@ -492,15 +652,21 @@ export async function detectarChatIdTelegramAction(
 }
 
 /**
- * Ejecuta un barrido inmediato de todos los compromisos por vencer o vencidos
- * y envía el reporte ejecutivo al grupo de Telegram / Supervisores.
+ * Ejecuta un barrido inmediato de todos los compromisos por vencer o vencidos:
+ * - Sincroniza primero las interacciones huérfanas.
+ * - Si lo ejecuta un Comercial, procesa únicamente sus propios compromisos.
+ * - Si lo ejecuta un Admin, envía el reporte consolidado a Telegram + Supervisores
+ *   y envía a cada comercial por correo ÚNICAMENTE sus propias alertas sin mezclarlas.
  */
 export async function ejecutarBarridoAlertasSLAAction(): Promise<{
   ok: boolean;
   enviadas: number;
+  detalles?: string;
   error?: string;
 }> {
-  await requireAuth();
+  const currentUser = await requireAuth();
+  await sincronizarInteraccionesYTareas();
+
   const config = await obtenerConfigAlertasAsync();
 
   const ahora = new Date();
@@ -508,14 +674,20 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
     ahora.getTime() + config.horasAlertaPreventiva * 60 * 60 * 1000
   );
 
+  const whereClause: Record<string, unknown> = {
+    estado: "pendiente",
+    fechaVencimiento: { lte: limitePreventivo },
+  };
+
+  if (currentUser.role !== "ADMIN") {
+    whereClause.responsableId = currentUser.id;
+  }
+
   const tareasPendientes = await prisma.tarea.findMany({
-    where: {
-      estado: "pendiente",
-      fechaVencimiento: { lte: limitePreventivo },
-    },
+    where: whereClause,
     include: {
       cuenta: { select: { razonSocial: true } },
-      responsable: { select: { name: true, email: true } },
+      responsable: { select: { id: true, name: true, email: true } },
     },
     orderBy: { fechaVencimiento: "asc" },
   });
@@ -531,7 +703,28 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
     (t) => t.fechaVencimiento && new Date(t.fechaVencimiento) >= ahora
   );
 
-  const lineas: string[] = [
+  const formatearLinea = (
+    t: (typeof tareasPendientes)[number],
+    etiquetaFecha: string,
+    html: boolean
+  ) => {
+    const f = t.fechaVencimiento
+      ? new Date(t.fechaVencimiento).toLocaleDateString("es-CL", {
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+    const emp = t.cuenta?.razonSocial || "Sin empresa";
+    const resp = t.responsable?.name || "Sin asignar";
+    if (html) {
+      return `• <b>${emp}</b>: ${t.titulo} — Resp: <i>${resp}</i> (${etiquetaFecha}: ${f})`;
+    }
+    return `• ${emp}: ${t.titulo} — Resp: ${resp} (${etiquetaFecha}: ${f})`;
+  };
+
+  const lineasHtml: string[] = [
     "🔔 <b>[REPORTE DE AUDITORÍA SLA - PROTEGIUS CRM]</b>",
     `🚨 <b>Atrasadas / SLA Vencido:</b> ${vencidas.length}`,
     `⚠️ <b>Por vencer (próx. ${config.horasAlertaPreventiva}h):</b> ${porVencer.length}`,
@@ -539,48 +732,132 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
   ];
 
   if (vencidas.length > 0) {
-    lineas.push("<b>🚨 COMPROMISOS ATRASADOS:</b>");
-    for (const t of vencidas.slice(0, 10)) {
-      const f = t.fechaVencimiento
-        ? new Date(t.fechaVencimiento).toLocaleDateString("es-CL", {
-            day: "2-digit",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "";
-      lineas.push(
-        `• <b>${t.cuenta?.razonSocial || "Sin empresa"}</b>: ${t.titulo} — Resp: <i>${
-          t.responsable?.name || "Sin asignar"
-        }</i> (Venció: ${f})`
-      );
+    lineasHtml.push("<b>🚨 COMPROMISOS ATRASADOS:</b>");
+    for (const t of vencidas.slice(0, 25)) {
+      lineasHtml.push(formatearLinea(t, "Venció", true));
     }
-    lineas.push("");
+    lineasHtml.push("");
   }
 
   if (porVencer.length > 0) {
-    lineas.push("<b>⚠️ PRÓXIMOS A VENCER:</b>");
-    for (const t of porVencer.slice(0, 10)) {
-      const f = t.fechaVencimiento
-        ? new Date(t.fechaVencimiento).toLocaleDateString("es-CL", {
-            day: "2-digit",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "";
-      lineas.push(
-        `• <b>${t.cuenta?.razonSocial || "Sin empresa"}</b>: ${t.titulo} — Resp: <i>${
-          t.responsable?.name || "Sin asignar"
-        }</i> (Vence: ${f})`
-      );
+    lineasHtml.push("<b>⚠️ PRÓXIMOS A VENCER:</b>");
+    for (const t of porVencer.slice(0, 25)) {
+      lineasHtml.push(formatearLinea(t, "Vence", true));
     }
   }
 
-  const res = await enviarMensajeTelegram(lineas.join("\n"));
-  if (!res.ok) {
-    return { ok: false, enviadas: 0, error: res.error };
+  const canalesEnviados: string[] = [];
+  let ultimoError = "";
+
+  // 1. Enviar a Grupo de Telegram (si está activo y es Admin o general)
+  if (config.telegramEnabled && config.telegramBotToken && config.telegramChatId) {
+    const resTg = await enviarMensajeTelegram(lineasHtml.join("\n"));
+    if (resTg.ok) {
+      canalesEnviados.push("Telegram");
+    } else if (resTg.error) {
+      ultimoError = resTg.error;
+    }
   }
 
-  return { ok: true, enviadas: tareasPendientes.length };
+  // 2. Enviar alertas por Correo vía n8n separadas por Ejecutivo (sin mezclar) + Supervisores
+  if (config.emailEnabled && config.emailWebhookUrl) {
+    // 2a. Agrupar por comercial para que cada ejecutivo reciba SOLO sus propias alertas
+    const porEjecutivo = new Map<
+      string,
+      { nombre: string; email: string; tareas: typeof tareasPendientes }
+    >();
+
+    for (const t of tareasPendientes) {
+      if (t.responsable?.email) {
+        const key = t.responsable.email.toLowerCase();
+        const actual = porEjecutivo.get(key) || {
+          nombre: t.responsable.name,
+          email: t.responsable.email,
+          tareas: [],
+        };
+        actual.tareas.push(t);
+        porEjecutivo.set(key, actual);
+      }
+    }
+
+    let correosEjecutivosOk = 0;
+    for (const [, ej] of Array.from(porEjecutivo.entries())) {
+      const vencidasEj = ej.tareas.filter(
+        (t) => t.fechaVencimiento && new Date(t.fechaVencimiento) < ahora
+      );
+      const porVencerEj = ej.tareas.filter(
+        (t) => t.fechaVencimiento && new Date(t.fechaVencimiento) >= ahora
+      );
+
+      const cuerpoEj: string[] = [
+        `Hola ${ej.nombre},`,
+        "",
+        `Tienes ${ej.tareas.length} compromiso(s) comercial(es) en seguimiento SLA asignados a tu gestión:`,
+        `• Atrasados (SLA Vencido): ${vencidasEj.length}`,
+        `• Próximos a vencer: ${porVencerEj.length}`,
+        "",
+      ];
+
+      if (vencidasEj.length > 0) {
+        cuerpoEj.push("🚨 TUS COMPROMISOS ATRASADOS:");
+        for (const t of vencidasEj) {
+          cuerpoEj.push(formatearLinea(t, "Venció", false));
+        }
+        cuerpoEj.push("");
+      }
+
+      if (porVencerEj.length > 0) {
+        cuerpoEj.push("⚠️ TUS COMPROMISOS PRÓXIMOS A VENCER:");
+        for (const t of porVencerEj) {
+          cuerpoEj.push(formatearLinea(t, "Vence", false));
+        }
+      }
+
+      const resEj = await enviarAlertaEmailWebhook({
+        asunto: `[Protegius CRM] Tus Alertas SLA (${vencidasEj.length} atrasadas, ${porVencerEj.length} por vencer) - ${ej.nombre}`,
+        mensaje: cuerpoEj.join("\n"),
+        destinatarios: ej.email,
+        responsable: ej.nombre,
+        tipoEvento: "resumen_ejecutivo_individual",
+      });
+      if (resEj.ok) correosEjecutivosOk++;
+      else if (resEj.error) ultimoError = resEj.error;
+    }
+
+    // 2b. Si es ADMIN, enviar también el consolidado general a los correos de Supervisores
+    if (currentUser.role === "ADMIN" && config.emailsSupervisores) {
+      const resSup = await enviarAlertaEmailWebhook({
+        asunto: `[Protegius CRM - Supervisores] Reporte Consolidado SLA (${vencidas.length} atrasadas, ${porVencer.length} por vencer)`,
+        mensaje: lineasHtml.join("\n").replace(/<[^>]+>/g, ""),
+        destinatarios: config.emailsSupervisores,
+        responsable: "Supervisores",
+        tipoEvento: "reporte_consolidado_supervisores",
+      });
+      if (resSup.ok) {
+        canalesEnviados.push(`Correo Supervisores y ${correosEjecutivosOk} ejecutivo(s)`);
+      } else if (resSup.error) {
+        ultimoError = resSup.error;
+      }
+    } else if (correosEjecutivosOk > 0) {
+      canalesEnviados.push(`Correo (${correosEjecutivosOk})`);
+    }
+  }
+
+  if (canalesEnviados.length === 0) {
+    return {
+      ok: false,
+      enviadas: 0,
+      error:
+        ultimoError ||
+        "No hay canales de alerta activos (habilita Telegram o Correo en Configurar Bot / Correo).",
+    };
+  }
+
+  revalidatePath("/auditoria");
+
+  return {
+    ok: true,
+    enviadas: tareasPendientes.length,
+    detalles: canalesEnviados.join(" + "),
+  };
 }

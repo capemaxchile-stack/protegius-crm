@@ -11,9 +11,11 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ColaLlamadosView, ProspectoItem } from "./ColaLlamadosView";
+import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
 
 export default async function ProspeccionPage() {
   const currentUser = await requireAuth();
+  await sincronizarInteraccionesYTareas();
 
   // Fecha inicio del día de hoy
   const hoy = new Date();
@@ -209,6 +211,7 @@ export default async function ProspeccionPage() {
       <ColaLlamadosView
         prospectos={prospectos}
         currentUserId={currentUser.id}
+        isAdmin={currentUser.role === "ADMIN"}
         usuarios={usuarios}
       />
     </div>
