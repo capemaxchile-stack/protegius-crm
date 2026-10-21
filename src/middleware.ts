@@ -8,7 +8,7 @@ const SECRET_KEY = new TextEncoder().encode(
 );
 
 // Rutas públicas que no requieren autenticación
-const PUBLIC_PATHS = ["/login", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/api/health", "/api/alertas-sla"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -55,5 +55,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/auth|api/alertas-sla|_next/static|_next/image|favicon.ico).*)"],
 };
