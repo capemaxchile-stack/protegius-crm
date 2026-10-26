@@ -3,10 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { PlantillaCorreo, PLANTILLAS_CORREO_DEFAULT } from "./plantillas-correo-types";
-
-export type { PlantillaCorreo };
-export { PLANTILLAS_CORREO_DEFAULT };
+import { type PlantillaCorreo, PLANTILLAS_CORREO_DEFAULT } from "./plantillas-correo-types";
 
 async function ensureConfigTable(): Promise<void> {
   try {
