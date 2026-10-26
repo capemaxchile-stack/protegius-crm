@@ -51,6 +51,7 @@ export async function crearUsuarioAction(
     });
 
     revalidatePath("/usuarios");
+    revalidatePath("/configuracion");
     return { success: true };
   } catch (err) {
     console.error("Error al crear usuario:", err);
@@ -72,6 +73,7 @@ export async function toggleEstadoUsuarioAction(userId: string, currentActive: b
   });
 
   revalidatePath("/usuarios");
+  revalidatePath("/configuracion");
 }
 
 export async function resetPasswordUsuarioAction(userId: string, newPassword: string) {
@@ -89,6 +91,7 @@ export async function resetPasswordUsuarioAction(userId: string, newPassword: st
   });
 
   revalidatePath("/usuarios");
+  revalidatePath("/configuracion");
 }
 
 export async function editarUsuarioAction(
@@ -158,6 +161,7 @@ export async function editarUsuarioAction(
     });
 
     revalidatePath("/usuarios");
+    revalidatePath("/configuracion");
     return { success: true };
   } catch (err) {
     console.error("Error al editar usuario:", err);

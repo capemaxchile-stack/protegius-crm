@@ -28,10 +28,18 @@ export async function obtenerMatrizPermisosAsync(): Promise<MatrizPermisos> {
     );
     if (rows && rows.length > 0 && rows[0].config_json) {
       const parsed = JSON.parse(rows[0].config_json) as Partial<MatrizPermisos>;
-      return {
+      const result: MatrizPermisos = {
         ...PERMISOS_DEFAULT_POR_ROL,
         ...parsed,
       };
+      // Normalizar: si tiene "usuarios" o "configuracion", sincronizar
+      for (const role of Object.keys(result) as UserRole[]) {
+        const items = result[role] || [];
+        if (items.includes("usuarios") && !items.includes("configuracion")) {
+          items.push("configuracion");
+        }
+      }
+      return result;
     }
   } catch (err) {
     console.error("Error consultando matriz de permisos en base de datos:", err);
@@ -46,7 +54,10 @@ export async function guardarMatrizPermisosAction(
     await requireAdmin();
     await ensureConfigTable();
 
-    // ADMIN siempre debe conservar acceso a la administración de usuarios
+    // ADMIN siempre debe conservar acceso a la administración del sistema
+    if (!matriz.ADMIN.includes("configuracion")) {
+      matriz.ADMIN.push("configuracion");
+    }
     if (!matriz.ADMIN.includes("usuarios")) {
       matriz.ADMIN.push("usuarios");
     }

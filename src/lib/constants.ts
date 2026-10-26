@@ -29,35 +29,34 @@ export const MENUS_SISTEMA: MenuItemConfig[] = [
   { id: "prospeccion", name: "🎯 Prospección & Llamados", href: "/prospeccion", iconName: "PhoneCall", descripcion: "Llamados diarios y gestión rápida de leads" },
   { id: "pipeline", name: "Pipeline Comercial", href: "/oportunidades/pipeline", iconName: "TrendingUp", descripcion: "Embudo de oportunidades y etapas de venta" },
   { id: "reuniones", name: "Reuniones & Agenda", href: "/reuniones", iconName: "Calendar", descripcion: "Reuniones agendadas y compromisos" },
-  { id: "auditoria", name: "Auditoría SLA & Alertas", href: "/auditoria", iconName: "ShieldAlert", descripcion: "Monitoreo de compromisos por vencer y atrasados" },
+  { id: "propuestas", name: "Propuestas en UF", href: "/propuestas", iconName: "FileSpreadsheet", descripcion: "Generación y cotización de planes" },
   { id: "cuentas", name: "Empresas & Cuentas", href: "/cuentas", iconName: "Building2", descripcion: "Fichas de clientes y prospectos corporativos" },
   { id: "contactos", name: "Directorio Contactos", href: "/contactos", iconName: "Users2", descripcion: "Base de contactos comerciales" },
-  { id: "propuestas", name: "Propuestas en UF", href: "/propuestas", iconName: "FileSpreadsheet", descripcion: "Generación y cotización de planes" },
+  { id: "auditoria", name: "Auditoría SLA & Alertas", href: "/auditoria", iconName: "ShieldAlert", descripcion: "Monitoreo de compromisos por vencer y atrasados" },
   { id: "reportes", name: "Reportes de Gestión", href: "/reportes", iconName: "BarChart3", descripcion: "Métricas y rendimiento comercial" },
   { id: "contratos", name: "Contratos", href: "/contratos", iconName: "FileCheck2", descripcion: "Gestión legal y firma de contratos" },
   { id: "onboarding", name: "Onboarding", href: "/onboarding", iconName: "UserCheck", descripcion: "Puesta en marcha de servicios a clientes" },
-  { id: "usuarios", name: "Usuarios y Accesos", href: "/usuarios", iconName: "UserCog", descripcion: "Administración de usuarios, roles y permisos" },
-  { id: "configuracion", name: "Configuración Canales", href: "/configuracion", iconName: "Settings", descripcion: "Telegram, Correos n8n/Brevo y reglas de alerta" },
+  { id: "configuracion", name: "Configuración & Accesos", href: "/configuracion", iconName: "Settings", descripcion: "Usuarios, roles, matriz de permisos y canales de alerta" },
   { id: "ayuda", name: "Centro de Ayuda", href: "/ayuda", iconName: "BookOpen", descripcion: "Manual y guías del sistema" },
 ];
 
 export const PERMISOS_DEFAULT_POR_ROL: Record<UserRole, string[]> = {
   ADMIN: [
-    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
-    "contactos", "propuestas", "reportes", "contratos", "onboarding",
-    "usuarios", "configuracion", "ayuda"
+    "prospeccion", "pipeline", "reuniones", "propuestas", "cuentas",
+    "contactos", "auditoria", "reportes", "contratos", "onboarding",
+    "configuracion", "ayuda"
   ],
   GERENTE_GENERAL: [
-    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
-    "contactos", "propuestas", "reportes", "contratos", "onboarding", "ayuda"
+    "prospeccion", "pipeline", "reuniones", "propuestas", "cuentas",
+    "contactos", "auditoria", "reportes", "contratos", "onboarding", "ayuda"
   ],
   GERENTE_COMERCIAL: [
-    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
-    "contactos", "propuestas", "reportes", "contratos", "onboarding", "ayuda"
+    "prospeccion", "pipeline", "reuniones", "propuestas", "cuentas",
+    "contactos", "auditoria", "reportes", "contratos", "onboarding", "ayuda"
   ],
   COMERCIAL: [
-    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
-    "contactos", "propuestas", "ayuda"
+    "prospeccion", "pipeline", "reuniones", "propuestas", "cuentas",
+    "contactos", "auditoria", "ayuda"
   ],
   CONSULTA: [
     "pipeline", "cuentas", "contactos", "reportes", "ayuda"
