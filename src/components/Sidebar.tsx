@@ -13,6 +13,7 @@ import {
   FileCheck2,
   UserCheck,
   UserCog,
+  Settings,
   LogOut,
   BookOpen,
   BarChart3,
@@ -85,6 +86,7 @@ export function Sidebar({ user, allowedMenuIds }: SidebarProps) {
     { id: "contratos", name: "Contratos", href: "/contratos", icon: FileCheck2 },
     { id: "onboarding", name: "Onboarding", href: "/onboarding", icon: UserCheck },
     { id: "usuarios", name: "Usuarios y Accesos", href: "/usuarios", icon: UserCog },
+    { id: "configuracion", name: "Configuración Canales", href: "/configuracion", icon: Settings },
     { id: "ayuda", name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
   ];
 

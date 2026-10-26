@@ -24,7 +24,7 @@ export default async function EditarCuentaPage({
   const cuentaId = cuenta.id;
 
   const usuarios = await prisma.user.findMany({
-    where: { active: true },
+    where: { active: true, role: { not: "ADMIN" } },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   });

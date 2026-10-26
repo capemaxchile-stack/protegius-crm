@@ -11,6 +11,10 @@ import {
   Lightbulb,
   ArrowRight,
   ShieldCheck,
+  ShieldAlert,
+  Users2,
+  Mail,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,7 +34,7 @@ export default async function AyudaPage() {
       puntosClave: [
         "Filtros operativos: Todos, Asignados a mí, Rellamar Hoy, Sin Contactar y Reunión Agendada.",
         "Acceso directo con un clic a discado telefónico (tel:) y WhatsApp web.",
-        "Modal de gestión rápida: tipificación de llamadas, agendamiento de reuniones y asignación de tareas automáticas.",
+        "Modal de gestión rápida: diferenciación clara entre envío de Cotización y Contrato, agendamiento de reuniones y asignación a ejecutivos.",
       ],
     },
     {
@@ -44,7 +48,7 @@ export default async function AyudaPage() {
         "Carga masiva de prospectos desde archivos Excel (.xlsx, .xls) o CSV con detección inteligente de columnas.",
       puntosClave: [
         "Mapeo visual automático de Razón Social, RUT, Contacto, Teléfono, Email, Cargo y Rubro.",
-        "Asignación directa de la base cargada al ejecutivo responsable.",
+        "Asignación directa de la base cargada a ejecutivos comerciales (excluye al Administrador de plataforma).",
         "Validación y sanitización algorítmica de RUT chileno con Módulo 11.",
       ],
     },
@@ -90,15 +94,75 @@ export default async function AyudaPage() {
       puntosClave: [
         "Congelamiento de tarifas en la cotización emitida.",
         "Generación automática de correlativo oficial anual (ej: PROP-2026-001).",
-        "Formato profesional preparado para impresión o PDF.",
+        "Eliminación protegida de propuestas erróneas o duplicadas disponible exclusivamente para Administradores.",
+      ],
+    },
+    {
+      id: "correos-clientes",
+      titulo: "6. Envíos de Correo a Clientes & Firma Ejecutiva",
+      icono: Mail,
+      color: "text-indigo-600 dark:text-indigo-400",
+      bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20",
+      ruta: "/cuentas",
+      descripcion:
+        "Envío de correos directos desde la ficha del cliente con plantillas comerciales y pie de firma dinámico según el ejecutivo conectado.",
+      puntosClave: [
+        "4 Plantillas listas: Presentación Comercial, Envío de Cotización UF, Seguimiento y Envío de Contrato.",
+        "Firma automática con Nombre, Cargo, Teléfono, Email y membrete oficial de Protegius.",
+        "Entrega de alta entregabilidad mediante Brevo API v3 (o webhook transaccional n8n).",
+      ],
+    },
+    {
+      id: "auditoria-sla",
+      titulo: "7. Auditoría SLA & Alertas al Ingresar",
+      icono: ShieldAlert,
+      color: "text-rose-600 dark:text-rose-400",
+      bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20",
+      ruta: "/auditoria",
+      descripcion:
+        "Supervisión estricta de compromisos comerciales, plazos de respuesta y recordatorios automáticos al abrir la plataforma.",
+      puntosClave: [
+        "Ventana de alerta preventiva configurable antes de que expire un compromiso comercial.",
+        "Popup emergente al iniciar sesión avisando de inmediato sobre tareas vencidas o compromisos de hoy.",
+        "Disparo manual o programado de alertas consolidadas hacia Telegram y Correo de supervisión.",
+      ],
+    },
+    {
+      id: "roles-permisos",
+      titulo: "8. Roles, Permisos & Matriz de Menú",
+      icono: Users2,
+      color: "text-teal-600 dark:text-teal-400",
+      bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-200 dark:border-teal-500/20",
+      ruta: "/usuarios",
+      descripcion:
+        "Estructura de seguridad con 5 roles corporativos y control visual de accesos al menú del sistema.",
+      puntosClave: [
+        "5 Roles: Administrador de Plataforma, Gerente General, Gerente Comercial, Ejecutivo Comercial y Solo Lectura.",
+        "Pestaña 'Matriz de Permisos': el Administrador activa o desactiva qué secciones ve cada rol en el menú lateral.",
+        "El Administrador queda excluido de tareas operativas para enfocarse netamente en la gestión del sistema.",
+      ],
+    },
+    {
+      id: "configuracion-canales",
+      titulo: "9. Configuración de Canales (Telegram & Webhooks)",
+      icono: Settings,
+      color: "text-slate-600 dark:text-slate-400",
+      bg: "bg-slate-50 dark:bg-slate-500/10 border-slate-200 dark:border-slate-500/20",
+      ruta: "/configuracion",
+      descripcion:
+        "Panel exclusivo para el Administrador para conectar canales externos de mensajería y alertas.",
+      puntosClave: [
+        "Bot de Telegram: conexión de token @BotFather y auto-detección del ID del grupo de supervisores.",
+        "Integración de Webhook n8n / Brevo para correos de alerta de SLA.",
+        "Pruebas de conectividad en tiempo real sin salir de la plataforma.",
       ],
     },
     {
       id: "contratos",
-      titulo: "6. Contratos & Onboarding",
+      titulo: "10. Contratos & Onboarding Operativo",
       icono: Building2,
-      color: "text-rose-600 dark:text-rose-400",
-      bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20",
       ruta: "/contratos",
       descripcion:
         "Formalización legal y pase a operaciones una vez aprobada la propuesta comercial.",
@@ -122,7 +186,7 @@ export default async function AyudaPage() {
             Guía de Funcionamiento de Protegius CRM
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-            Esta plataforma está construida siguiendo la metodología comercial B2B de Protegius: cotizaciones siempre en <strong>UF</strong>, separación estricta de cuentas y personas, congelamiento de tarifas y pase directo a onboarding técnico.
+            Esta plataforma está construida siguiendo la metodología comercial B2B de Protegius: cotizaciones siempre en <strong>UF</strong>, separación estricta de cuentas y personas, control estricto de SLA, trazabilidad de llamadas y envío de correos con firma corporativa.
           </p>
         </div>
       </div>
@@ -131,7 +195,7 @@ export default async function AyudaPage() {
       <div className="space-y-4">
         <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span>El Ciclo de Vida del Negocio Paso a Paso</span>
+          <span>Módulos y Procesos del Sistema</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -186,7 +250,7 @@ export default async function AyudaPage() {
           <h2 className="font-bold text-slate-900 dark:text-white text-sm">Reglas de Oro en Protegius CRM</h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-700 dark:text-slate-300">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs text-slate-700 dark:text-slate-300">
           <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-1">
             <p className="font-bold text-amber-700 dark:text-amber-300">1. Todo en UF</p>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -195,16 +259,23 @@ export default async function AyudaPage() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-1">
-            <p className="font-bold text-amber-700 dark:text-amber-300">2. Cierre de Tareas con Bitácora</p>
+            <p className="font-bold text-amber-700 dark:text-amber-300">2. Cierre con Bitácora</p>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              Una tarea nunca se completa en blanco: siempre se registra qué pasó en la llamada o reunión.
+              Una tarea nunca se completa en blanco: siempre se registra qué ocurrió en la llamada o reunión.
             </p>
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-1">
-            <p className="font-bold text-amber-700 dark:text-amber-300">3. Sin Duplicidad de Contactos</p>
+            <p className="font-bold text-amber-700 dark:text-amber-300">3. Sin Duplicidad</p>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              Si un contacto cambia de empresa, se desactiva su vínculo anterior y se afilia a la nueva manteniendo todo su historial.
+              Si un contacto cambia de empresa, se desactiva su vínculo previo y se afilia a la nueva manteniendo su historial.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-1">
+            <p className="font-bold text-amber-700 dark:text-amber-300">4. Alertas al Ingresar</p>
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+              El sistema te avisa inmediatamente al entrar si tienes tareas vencidas o reuniones programadas para hoy.
             </p>
           </div>
         </div>

@@ -58,7 +58,7 @@ export default async function ProspeccionPage() {
       },
     }),
     prisma.user.findMany({
-      where: { active: true },
+      where: { active: true, role: { not: "ADMIN" } },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

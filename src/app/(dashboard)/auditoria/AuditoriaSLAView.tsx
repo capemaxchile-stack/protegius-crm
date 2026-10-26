@@ -2,14 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
 import {
-  guardarConfigAlertasAction,
-  probarConexionTelegramAction,
-  probarConexionEmailAction,
-  detectarChatIdTelegramAction,
   ejecutarBarridoAlertasSLAAction,
-  InteraccionActionState,
 } from "@/lib/actions-interacciones";
 import { completarTareaNotificacionAction } from "@/lib/actions-notificaciones";
 import type { AlertasConfig } from "@/lib/alertas-externas";
@@ -19,13 +13,11 @@ import {
   AlertTriangle,
   Clock,
   CheckCircle2,
-  Send,
   Settings,
   BellRing,
   ArrowRight,
   UserCheck,
   Building2,
-  Mail,
 } from "lucide-react";
 
 export interface ItemAuditoriaSLA {
@@ -59,19 +51,6 @@ interface AuditoriaSLAViewProps {
   isAdmin: boolean;
 }
 
-function SaveConfigButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
-    >
-      {pending ? "Guardando..." : "Guardar Configuración SLA & Bot"}
-    </button>
-  );
-}
-
 export function AuditoriaSLAView({
   items,
   usuarios,
@@ -80,21 +59,8 @@ export function AuditoriaSLAView({
 }: AuditoriaSLAViewProps) {
   const [filtroSLA, setFiltroSLA] = useState<"todos" | "vencida" | "por_vencer" | "en_plazo" | "realizada">("todos");
   const [filtroResponsable, setFiltroResponsable] = useState<string>("todos");
-  const [mostrarConfig, setMostrarConfig] = useState(
-    isAdmin && !config.telegramBotToken
-  );
-
-  const [botTokenInput, setBotTokenInput] = useState(config.telegramBotToken);
-  const [chatIdInput, setChatIdInput] = useState(config.telegramChatId);
-  const [emailsInput, setEmailsInput] = useState(config.emailsSupervisores);
-  const [webhookInput, setWebhookInput] = useState(config.emailWebhookUrl);
   const [feedbackBot, setFeedbackBot] = useState<{ ok?: boolean; msg?: string } | null>(null);
   const [enviandoBot, setEnviandoBot] = useState(false);
-
-  const [configState, configAction] = useFormState<InteraccionActionState | null, FormData>(
-    guardarConfigAlertasAction,
-    null
-  );
 
   const itemsFiltrados = useMemo(() => {
     return items.filter((item) => {
@@ -108,48 +74,6 @@ export function AuditoriaSLAView({
   const totalPorVencer = items.filter((i) => i.estadoSLA === "por_vencer").length;
   const totalEnPlazo = items.filter((i) => i.estadoSLA === "en_plazo").length;
   const totalRealizadas = items.filter((i) => i.estadoSLA === "realizada").length;
-
-  const handleProbarTelegram = async () => {
-    setEnviandoBot(true);
-    setFeedbackBot(null);
-    try {
-      const res = await probarConexionTelegramAction(botTokenInput, chatIdInput);
-      if (res.ok) {
-        setFeedbackBot({
-          ok: true,
-          msg: "¡Mensaje de prueba enviado con éxito al grupo de Telegram!",
-        });
-      } else {
-        setFeedbackBot({
-          ok: false,
-          msg: res.error || "No se pudo conectar con Telegram.",
-        });
-      }
-    } finally {
-      setEnviandoBot(false);
-    }
-  };
-
-  const handleProbarEmail = async () => {
-    setEnviandoBot(true);
-    setFeedbackBot(null);
-    try {
-      const res = await probarConexionEmailAction(emailsInput, webhookInput);
-      if (res.ok) {
-        setFeedbackBot({
-          ok: true,
-          msg: `¡Correo de prueba enviado con éxito vía n8n a: ${emailsInput}! Revisa tu bandeja de entrada.`,
-        });
-      } else {
-        setFeedbackBot({
-          ok: false,
-          msg: res.error || "No se pudo enviar el correo de prueba.",
-        });
-      }
-    } finally {
-      setEnviandoBot(false);
-    }
-  };
 
   const handleEnviarBarridoSLA = async () => {
     setEnviandoBot(true);
@@ -349,14 +273,13 @@ export function AuditoriaSLAView({
           </button>
 
           {isAdmin && (
-            <button
-              type="button"
-              onClick={() => setMostrarConfig(!mostrarConfig)}
+            <Link
+              href="/configuracion"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-700 transition"
             >
-              <Settings className="w-3.5 h-3.5" />
-              <span>Configurar Bot Telegram / Correo</span>
-            </button>
+              <Settings className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>⚙️ Configuración Canales</span>
+            </Link>
           )}
         </div>
       </div>
@@ -377,246 +300,9 @@ export function AuditoriaSLAView({
         </div>
       )}
 
-      {/* Panel de Configuración de Telegram Bot + Correo + Reglas SLA (Solo Admin) */}
-      {isAdmin && mostrarConfig && (
-        <div className="bg-white dark:bg-slate-900 border-2 border-blue-500/30 rounded-2xl p-6 shadow-lg space-y-5 animate-in fade-in duration-150">
-          <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Send className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Configuración de Alertas por Telegram (Bot + Grupo) y Correo</span>
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Conecta un Bot de Telegram a tu grupo de Supervisores/Comercial para recibir alertas automáticas cuando se solicita una cotización, está por vencer o se atrasa.
-              </p>
-            </div>
-          </div>
 
-          {configState?.message && (
-            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-              {configState.message}
-            </div>
-          )}
 
-          <form action={configAction} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Columna 1: Telegram Bot */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
-                    🤖 Bot de Telegram & Grupo de Alertas
-                  </span>
-                  <label className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="telegramEnabled"
-                      defaultChecked={config.telegramEnabled}
-                      className="rounded border-slate-300"
-                    />
-                    <span>Habilitar Telegram</span>
-                  </label>
-                </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Telegram Bot Token (entregado por @BotFather)
-                  </label>
-                  <input
-                    type="text"
-                    name="telegramBotToken"
-                    value={botTokenInput}
-                    onChange={(e) => setBotTokenInput(e.target.value)}
-                    placeholder="Ej: 7123456789:AAHxyz..."
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                      Chat ID del Grupo o Canal de Supervisores
-                    </label>
-                    <button
-                      type="button"
-                      disabled={enviandoBot}
-                      onClick={async () => {
-                        setEnviandoBot(true);
-                        setFeedbackBot(null);
-                        try {
-                          const res = await detectarChatIdTelegramAction(botTokenInput);
-                          if (res.ok && res.chatId) {
-                            setChatIdInput(res.chatId);
-                            setFeedbackBot({
-                              ok: true,
-                              msg: `¡Grupo detectado: "${res.title}" (ID: ${res.chatId})! Haz clic en Guardar Configuración.`,
-                            });
-                          } else {
-                            setFeedbackBot({
-                              ok: false,
-                              msg: res.error || "No se pudo detectar el grupo.",
-                            });
-                          }
-                        } finally {
-                          setEnviandoBot(false);
-                        }
-                      }}
-                      className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      🔍 Auto-detectar ID del Grupo
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    name="telegramChatId"
-                    value={chatIdInput}
-                    onChange={(e) => setChatIdInput(e.target.value)}
-                    placeholder="Ej: -1001987654321"
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Tip: Agrega tu Bot al grupo de Telegram, envía un mensaje cualquiera en el grupo (ej: <code>/hola</code>) y haz clic en <strong>🔍 Auto-detectar ID del Grupo</strong>.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  disabled={enviandoBot}
-                  onClick={handleProbarTelegram}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 text-xs font-bold hover:bg-blue-100 transition"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Probar Mensaje al Grupo Ahora</span>
-                </button>
-              </div>
-
-              {/* Columna 2: Reglas SLA y Correo */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-3.5">
-                <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                  ⏱️ Tiempos SLA y Alertas Automáticas
-                </span>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      Alerta Preventiva (Horas antes)
-                    </label>
-                    <input
-                      type="number"
-                      name="horasAlertaPreventiva"
-                      defaultValue={config.horasAlertaPreventiva}
-                      min={1}
-                      max={120}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      SLA Cotización (Horas)
-                    </label>
-                    <input
-                      type="number"
-                      name="slaCotizacionHoras"
-                      defaultValue={config.slaCotizacionHoras}
-                      min={1}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-1">
-                  <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="notificarAlAsignar"
-                      defaultChecked={config.notificarAlAsignar}
-                    />
-                    <span>Avisar al grupo inmediatamente cuando se asigne una cotización/compromiso</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="notificarPorVencer"
-                      defaultChecked={config.notificarPorVencer}
-                    />
-                    <span>Avisar cuando una fecha límite esté por vencer</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="notificarVencidas"
-                      defaultChecked={config.notificarVencidas}
-                    />
-                    <span>Escalar a supervisores cuando el SLA esté vencido</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer font-semibold pt-0.5">
-                    <input
-                      type="checkbox"
-                      name="excluirAdminDeAlertas"
-                      defaultChecked={config.excluirAdminDeAlertas ?? true}
-                    />
-                    <span>🛡️ Excluir al Administrador de alertas operativas (solo administra el sistema)</span>
-                  </label>
-                </div>
-
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                      ✉️ Alertas por Correo (Webhook / n8n / SMTP)
-                    </span>
-                    <label className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="emailEnabled"
-                        defaultChecked={config.emailEnabled}
-                      />
-                      <span>Habilitar Correo</span>
-                    </label>
-                  </div>
-                  <input
-                    type="text"
-                    name="emailsSupervisores"
-                    value={emailsInput}
-                    onChange={(e) => setEmailsInput(e.target.value)}
-                    placeholder="Correos supervisores (separados por coma)"
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white"
-                  />
-                  <input
-                    type="text"
-                    name="emailWebhookUrl"
-                    value={webhookInput}
-                    onChange={(e) => setWebhookInput(e.target.value)}
-                    placeholder="URL Webhook de Correo (ej. n8n / Make / Resend)"
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-900 dark:text-white"
-                  />
-                  <p className="text-[10px] text-slate-500">
-                    Nota: Cada ejecutivo comercial recibe por correo <strong>únicamente sus propias alertas</strong>. El correo de Supervisores recibe la copia global consolidada.
-                  </p>
-                  <button
-                    type="button"
-                    disabled={enviandoBot}
-                    onClick={handleProbarEmail}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-xs font-bold hover:bg-emerald-100 transition"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Probar Envío de Correo Ahora</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setMostrarConfig(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold"
-              >
-                Cerrar
-              </button>
-              <SaveConfigButton />
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* Tabla de Flujo de Responsables y Auditoría SLA */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">

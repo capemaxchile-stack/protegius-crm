@@ -37,6 +37,7 @@ export const MENUS_SISTEMA: MenuItemConfig[] = [
   { id: "contratos", name: "Contratos", href: "/contratos", iconName: "FileCheck2", descripcion: "Gestión legal y firma de contratos" },
   { id: "onboarding", name: "Onboarding", href: "/onboarding", iconName: "UserCheck", descripcion: "Puesta en marcha de servicios a clientes" },
   { id: "usuarios", name: "Usuarios y Accesos", href: "/usuarios", iconName: "UserCog", descripcion: "Administración de usuarios, roles y permisos" },
+  { id: "configuracion", name: "Configuración Canales", href: "/configuracion", iconName: "Settings", descripcion: "Telegram, Correos n8n/Brevo y reglas de alerta" },
   { id: "ayuda", name: "Centro de Ayuda", href: "/ayuda", iconName: "BookOpen", descripcion: "Manual y guías del sistema" },
 ];
 
@@ -44,7 +45,7 @@ export const PERMISOS_DEFAULT_POR_ROL: Record<UserRole, string[]> = {
   ADMIN: [
     "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
     "contactos", "propuestas", "reportes", "contratos", "onboarding",
-    "usuarios", "ayuda"
+    "usuarios", "configuracion", "ayuda"
   ],
   GERENTE_GENERAL: [
     "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",

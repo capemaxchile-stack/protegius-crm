@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { UserRole } from "@/lib/constants";
 import { HeaderNotificaciones } from "./HeaderNotificaciones";
+import { ModalRecordatorioAlertas } from "./ModalRecordatorioAlertas";
 import { PhoneCall, Plus } from "lucide-react";
 
 interface TopBarProps {
@@ -44,6 +45,9 @@ export function TopBar({ user }: TopBarProps) {
 
         {/* Campana de Notificaciones */}
         <HeaderNotificaciones />
+
+        {/* Modal de Recordatorio Automático al Ingresar */}
+        <ModalRecordatorioAlertas />
       </div>
     </header>
   );

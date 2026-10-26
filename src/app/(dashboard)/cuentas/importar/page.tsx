@@ -6,7 +6,7 @@ export default async function ImportarCuentasPage() {
   await requireAuth();
 
   const usuarios = await prisma.user.findMany({
-    where: { active: true },
+    where: { active: true, role: { not: "ADMIN" } },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   });

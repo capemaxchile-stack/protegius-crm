@@ -25,8 +25,8 @@ export function MatrizPermisosRoles({ matrizInicial }: MatrizPermisosRolesProps)
   const router = useRouter();
 
   const togglePermiso = (rol: UserRole, menuId: string) => {
-    // ADMIN siempre debe tener acceso a usuarios
-    if (rol === "ADMIN" && menuId === "usuarios") return;
+    // ADMIN siempre debe tener acceso a usuarios y configuracion
+    if (rol === "ADMIN" && (menuId === "usuarios" || menuId === "configuracion")) return;
 
     setMatriz((prev) => {
       const actuales = prev[rol] || [];
@@ -149,7 +149,7 @@ export function MatrizPermisosRoles({ matrizInicial }: MatrizPermisosRolesProps)
                   </td>
                   {ROLES_ORDER.map((rol) => {
                     const checked = (matriz[rol] || []).includes(menu.id);
-                    const isLocked = rol === "ADMIN" && menu.id === "usuarios";
+                    const isLocked = rol === "ADMIN" && (menu.id === "usuarios" || menu.id === "configuracion");
 
                     return (
                       <td key={`${rol}-${menu.id}`} className="py-3.5 px-3 text-center">
