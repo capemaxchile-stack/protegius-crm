@@ -420,6 +420,7 @@ export async function guardarConfigAlertasAction(
 
   await guardarConfigAlertasAsync(nuevaConfig);
   revalidatePath("/auditoria");
+  revalidatePath("/configuracion");
 
   return {
     success: true,
