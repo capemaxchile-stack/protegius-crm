@@ -3,16 +3,18 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: protegius-dev-postgres
+    container_name: protegius-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-protegius}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-protegius_dev_secret_2026}
-      POSTGRES_DB: ${DB_NAME:-protegius_dev}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-protegius_secret_2026}
+      POSTGRES_DB: ${DB_NAME:-protegius_crm}
+    ports:
+      - "${DB_PORT:-5432}:5432"
     volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-protegius} -d ${DB_NAME:-protegius_dev}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-protegius} -d ${DB_NAME:-protegius_crm}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -21,16 +23,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: protegius-dev-app
+    container_name: protegius-crm-app
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${DB_USER:-protegius}:${DB_PASSWORD:-protegius_dev_secret_2026}@postgres:5432/${DB_NAME:-protegius_dev}?schema=public
-      AUTH_SECRET: ${AUTH_SECRET:-protegius_dev_super_secret_jwt_key_32_bytes_dev}
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://dev.protegius.capemaxchile.com}
+      DATABASE_URL: postgresql://${DB_USER:-protegius}:${DB_PASSWORD:-protegius_secret_2026}@postgres:5432/${DB_NAME:-protegius_crm}?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:-protegius_super_secret_jwt_key_32_bytes_min_length}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/login > /dev/null || exit 1"]
       interval: 10s
@@ -39,5 +43,5 @@ services:
       start_period: 15s
 
 volumes:
-  postgres_dev_data:
+  postgres_data:
     driver: local
