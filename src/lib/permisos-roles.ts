@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
 import { UserRole, PERMISOS_DEFAULT_POR_ROL } from "@/lib/constants";
 import { requireAdmin } from "@/lib/auth";

@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Mail, Send, X, Check, Sparkles } from "lucide-react";
-import { PlantillaCorreo, enviarCorreoClienteAction } from "@/lib/plantillas-correo";
+import { PlantillaCorreo } from "@/lib/plantillas-correo-types";
+import { enviarCorreoClienteAction } from "@/lib/plantillas-correo";
 
 interface ContactoItem {
   id: string;
