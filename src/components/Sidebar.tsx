@@ -13,14 +13,12 @@ import {
   FileCheck2,
   UserCheck,
   Settings,
-  LogOut,
   BookOpen,
   BarChart3,
   ShieldAlert,
 } from "lucide-react";
-import { USER_ROLE_LABELS, UserRole, PERMISOS_DEFAULT_POR_ROL } from "@/lib/constants";
+import { UserRole, PERMISOS_DEFAULT_POR_ROL } from "@/lib/constants";
 import { IndicadoresEconomicos } from "./IndicadoresEconomicos";
-import { ControlesAccesibilidad } from "./ControlesAccesibilidad";
 
 interface SidebarProps {
   user: {
@@ -180,7 +178,7 @@ export function Sidebar({ user, allowedMenuIds }: SidebarProps) {
 
   return (
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0 text-slate-700 dark:text-slate-300 print:hidden transition-colors duration-150">
-      <div className="overflow-hidden flex flex-col">
+      <div className="overflow-hidden flex flex-col flex-1 min-h-0">
         {/* Brand header */}
         <div className="p-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-slate-800/90 border border-blue-100 dark:border-slate-700/60 p-1.5 flex items-center justify-center shrink-0 shadow-sm">
@@ -203,7 +201,7 @@ export function Sidebar({ user, allowedMenuIds }: SidebarProps) {
         </div>
 
         {/* Navigation links agrupados por estructura y afinidad */}
-        <nav className="p-3 space-y-3 overflow-y-auto max-h-[calc(100vh-340px)]">
+        <nav className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
           {gruposFiltrados.map((grupo, idx) => (
             <div
               key={grupo.titulo}
@@ -247,40 +245,9 @@ export function Sidebar({ user, allowedMenuIds }: SidebarProps) {
         </nav>
       </div>
 
-      {/* Widgets Inferiores: Indicadores Económicos + Controles de Accesibilidad + Usuario */}
-      <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 space-y-2.5 shrink-0 transition-colors">
-        {/* Indicadores Diarios (UF, Dólar, UTM, Euro) */}
+      {/* Widgets Inferiores: Indicadores Económicos con opción de mostrar u ocultar */}
+      <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 shrink-0 transition-colors">
         <IndicadoresEconomicos />
-
-        {/* Controles de Tema Claro/Oscuro y Tamaño de Letra (A, A+, A++) */}
-        <ControlesAccesibilidad />
-
-        {/* User profile & Logout */}
-        <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center font-bold text-slate-800 dark:text-white text-xs shrink-0">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                {user.name}
-              </p>
-              <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-                {USER_ROLE_LABELS[user.role] || user.role}
-              </span>
-            </div>
-          </div>
-
-          <form action="/api/auth/logout" method="POST">
-            <button
-              type="submit"
-              title="Cerrar sesión"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/20 transition duration-150"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </form>
-        </div>
       </div>
     </aside>
   );
