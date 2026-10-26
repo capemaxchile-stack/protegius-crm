@@ -47,6 +47,16 @@ interface ModalRegistrarAccionProps {
   currentUserId: string;
 }
 
+const ETIQUETAS_ACCIONES: Record<string, string> = {
+  llamada: "📞 Llamada",
+  whatsapp: "💬 WhatsApp",
+  email: "✉️ Correo",
+  reunion: "📅 Reunión",
+  cotizacion: "📄 Cotización",
+  contrato: "✒️ Contrato",
+  nota: "📝 Nota",
+};
+
 export function ModalRegistrarAccion({
   cuenta,
   contacto,
@@ -155,7 +165,7 @@ export function ModalRegistrarAccion({
                           : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                       }`}
                     >
-                      {t.label.split(" ")[0]}
+                      {ETIQUETAS_ACCIONES[t.id] || t.label}
                     </button>
                   ))}
                 </div>

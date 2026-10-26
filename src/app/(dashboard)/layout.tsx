@@ -1,6 +1,8 @@
 import { requireAuth } from "@/lib/auth";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
+import { obtenerMatrizPermisosAsync } from "@/lib/permisos-roles";
+import { UserRole } from "@/lib/constants";
 
 export default async function DashboardLayout({
   children,
@@ -8,6 +10,8 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await requireAuth();
+  const matrizPermisos = await obtenerMatrizPermisosAsync();
+  const allowedMenuIds = matrizPermisos[user.role as UserRole] || [];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100 print:bg-white print:text-slate-900 transition-colors duration-150">
@@ -18,6 +22,7 @@ export default async function DashboardLayout({
           email: user.email,
           role: user.role,
         }}
+        allowedMenuIds={allowedMenuIds}
       />
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         <TopBar

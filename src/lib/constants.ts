@@ -1,6 +1,8 @@
 // Roles del sistema
 export const USER_ROLES = {
   ADMIN: "ADMIN",
+  GERENTE_GENERAL: "GERENTE_GENERAL",
+  GERENTE_COMERCIAL: "GERENTE_COMERCIAL",
   COMERCIAL: "COMERCIAL",
   CONSULTA: "CONSULTA",
 } as const;
@@ -8,9 +10,57 @@ export const USER_ROLES = {
 export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
-  ADMIN: "Administrador",
+  ADMIN: "Administrador de Plataforma",
+  GERENTE_GENERAL: "Gerente General",
+  GERENTE_COMERCIAL: "Gerente Comercial",
   COMERCIAL: "Ejecutivo Comercial",
   CONSULTA: "Solo Lectura / Consulta",
+};
+
+export interface MenuItemConfig {
+  id: string;
+  name: string;
+  href: string;
+  iconName: string;
+  descripcion: string;
+}
+
+export const MENUS_SISTEMA: MenuItemConfig[] = [
+  { id: "prospeccion", name: "🎯 Prospección & Llamados", href: "/prospeccion", iconName: "PhoneCall", descripcion: "Llamados diarios y gestión rápida de leads" },
+  { id: "pipeline", name: "Pipeline Comercial", href: "/oportunidades/pipeline", iconName: "TrendingUp", descripcion: "Embudo de oportunidades y etapas de venta" },
+  { id: "reuniones", name: "Reuniones & Agenda", href: "/reuniones", iconName: "Calendar", descripcion: "Reuniones agendadas y compromisos" },
+  { id: "auditoria", name: "Auditoría SLA & Alertas", href: "/auditoria", iconName: "ShieldAlert", descripcion: "Monitoreo de compromisos por vencer y atrasados" },
+  { id: "cuentas", name: "Empresas & Cuentas", href: "/cuentas", iconName: "Building2", descripcion: "Fichas de clientes y prospectos corporativos" },
+  { id: "contactos", name: "Directorio Contactos", href: "/contactos", iconName: "Users2", descripcion: "Base de contactos comerciales" },
+  { id: "propuestas", name: "Propuestas en UF", href: "/propuestas", iconName: "FileSpreadsheet", descripcion: "Generación y cotización de planes" },
+  { id: "reportes", name: "Reportes de Gestión", href: "/reportes", iconName: "BarChart3", descripcion: "Métricas y rendimiento comercial" },
+  { id: "contratos", name: "Contratos", href: "/contratos", iconName: "FileCheck2", descripcion: "Gestión legal y firma de contratos" },
+  { id: "onboarding", name: "Onboarding", href: "/onboarding", iconName: "UserCheck", descripcion: "Puesta en marcha de servicios a clientes" },
+  { id: "usuarios", name: "Usuarios y Accesos", href: "/usuarios", iconName: "UserCog", descripcion: "Administración de usuarios, roles y permisos" },
+  { id: "ayuda", name: "Centro de Ayuda", href: "/ayuda", iconName: "BookOpen", descripcion: "Manual y guías del sistema" },
+];
+
+export const PERMISOS_DEFAULT_POR_ROL: Record<UserRole, string[]> = {
+  ADMIN: [
+    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
+    "contactos", "propuestas", "reportes", "contratos", "onboarding",
+    "usuarios", "ayuda"
+  ],
+  GERENTE_GENERAL: [
+    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
+    "contactos", "propuestas", "reportes", "contratos", "onboarding", "ayuda"
+  ],
+  GERENTE_COMERCIAL: [
+    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
+    "contactos", "propuestas", "reportes", "contratos", "onboarding", "ayuda"
+  ],
+  COMERCIAL: [
+    "prospeccion", "pipeline", "reuniones", "auditoria", "cuentas",
+    "contactos", "propuestas", "ayuda"
+  ],
+  CONSULTA: [
+    "pipeline", "cuentas", "contactos", "reportes", "ayuda"
+  ],
 };
 
 // Etapas de Oportunidad comercial simplificadas (4 etapas clave de prospección)

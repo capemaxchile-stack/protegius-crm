@@ -30,7 +30,7 @@ async function procesarBarridoSLA() {
       },
       include: {
         cuenta: { select: { razonSocial: true } },
-        responsable: { select: { id: true, name: true, email: true } },
+        responsable: { select: { id: true, name: true, email: true, role: true } },
       },
       orderBy: { fechaVencimiento: "asc" },
     });
@@ -99,6 +99,11 @@ async function procesarBarridoSLA() {
 
       for (const t of tareas) {
         if (t.responsable?.email) {
+          // Excluir al rol ADMIN de alertas comerciales individuales si está configurado
+          if (config.excluirAdminDeAlertas && t.responsable.role === "ADMIN") {
+            continue;
+          }
+
           const key = t.responsable.email.toLowerCase();
           const actual = porEjecutivo.get(key) || {
             nombre: t.responsable.name,

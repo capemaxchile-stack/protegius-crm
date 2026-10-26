@@ -445,3 +445,54 @@ export async function registrarActividadCuentaAction(
     return { error: "No se pudo registrar la actividad." };
   }
 }
+
+/**
+ * Elimina una cuenta y sus registros asociados (Exclusivo para Administrador).
+ */
+export async function eliminarCuentaAction(
+  cuentaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { requireAdmin } = await import("@/lib/auth");
+    await requireAdmin();
+
+    const cuenta = await prisma.cuenta.findUnique({
+      where: { id: cuentaId },
+      include: {
+        contratos: true,
+      },
+    });
+
+    if (!cuenta) {
+      return { success: false, error: "La cuenta no existe." };
+    }
+
+    if (cuenta.contratos.length > 0) {
+      return {
+        success: false,
+        error: "No se puede eliminar una cuenta que posee contratos legales registrados.",
+      };
+    }
+
+    await prisma.$transaction([
+      prisma.actividad.deleteMany({ where: { cuentaId } }),
+      prisma.tarea.deleteMany({ where: { cuentaId } }),
+      prisma.afiliacion.deleteMany({ where: { cuentaId } }),
+      prisma.propuesta.deleteMany({ where: { cuentaId } }),
+      prisma.oportunidad.deleteMany({ where: { cuentaId } }),
+      prisma.cuenta.delete({ where: { id: cuentaId } }),
+    ]);
+
+    revalidatePath("/cuentas");
+    revalidatePath("/prospeccion");
+    revalidatePath("/oportunidades/pipeline");
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error eliminando cuenta:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Error al eliminar la cuenta.",
+    };
+  }
+}

@@ -196,9 +196,11 @@ export function CrearUsuarioModal() {
                     defaultValue={USER_ROLES.COMERCIAL}
                     className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value={USER_ROLES.COMERCIAL}>{USER_ROLE_LABELS.COMERCIAL}</option>
-                    <option value={USER_ROLES.ADMIN}>{USER_ROLE_LABELS.ADMIN}</option>
-                    <option value={USER_ROLES.CONSULTA}>{USER_ROLE_LABELS.CONSULTA}</option>
+                    {Object.entries(USER_ROLE_LABELS).map(([rolKey, label]) => (
+                      <option key={rolKey} value={rolKey}>
+                        {label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

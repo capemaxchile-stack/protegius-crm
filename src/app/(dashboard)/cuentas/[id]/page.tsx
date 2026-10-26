@@ -21,6 +21,9 @@ import {
   marcarContactoPrincipalAction,
 } from "@/lib/actions-cuentas";
 import { sincronizarInteraccionesYTareas } from "@/lib/actions-interacciones";
+import { obtenerPlantillasCorreoAsync } from "@/lib/plantillas-correo";
+import { ModalEnviarCorreoCliente } from "@/components/ModalEnviarCorreoCliente";
+import { BotonEliminarCuenta } from "@/components/BotonEliminarCuenta";
 
 export default async function CuentaDetallePage({
   params,
@@ -32,7 +35,7 @@ export default async function CuentaDetallePage({
   // Sincronizar compromisos de interacciones históricas con la tabla de tareas
   await sincronizarInteraccionesYTareas();
 
-  const [cuenta, usuarios] = await Promise.all([
+  const [cuenta, usuarios, plantillas] = await Promise.all([
     prisma.cuenta.findUnique({
       where: { id: params.id },
       include: {
@@ -64,6 +67,7 @@ export default async function CuentaDetallePage({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    obtenerPlantillasCorreoAsync(),
   ]);
 
   if (!cuenta) {
@@ -116,6 +120,18 @@ export default async function CuentaDetallePage({
         </div>
 
         <div className="flex items-center gap-2">
+          <ModalEnviarCorreoCliente
+            cuentaId={cuenta.id}
+            razonSocial={cuenta.razonSocial}
+            contactos={contactosActivos}
+            plantillas={plantillas}
+            ejecutivo={{
+              name: currentUser.name,
+              email: currentUser.email,
+              telefono: currentUser.telefono,
+              cargo: currentUser.cargo,
+            }}
+          />
           <ActividadModal
             cuentaId={cuenta.id}
             contactos={contactosActivos}
@@ -129,6 +145,13 @@ export default async function CuentaDetallePage({
             <Edit className="w-3.5 h-3.5" />
             <span>Editar Datos</span>
           </Link>
+
+          {currentUser.role === "ADMIN" && (
+            <BotonEliminarCuenta
+              cuentaId={cuenta.id}
+              razonSocial={cuenta.razonSocial}
+            />
+          )}
         </div>
       </div>
 

@@ -415,6 +415,7 @@ export async function guardarConfigAlertasAction(
     notificarAlAsignar: formData.get("notificarAlAsignar") === "on",
     notificarPorVencer: formData.get("notificarPorVencer") === "on",
     notificarVencidas: formData.get("notificarVencidas") === "on",
+    excluirAdminDeAlertas: formData.get("excluirAdminDeAlertas") === "on",
   };
 
   await guardarConfigAlertasAsync(nuevaConfig);
@@ -679,7 +680,8 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
     fechaVencimiento: { lte: limitePreventivo },
   };
 
-  if (currentUser.role !== "ADMIN") {
+  const rolesConAccesoGlobal = ["ADMIN", "GERENTE_GENERAL", "GERENTE_COMERCIAL"];
+  if (!rolesConAccesoGlobal.includes(currentUser.role)) {
     whereClause.responsableId = currentUser.id;
   }
 
@@ -687,7 +689,7 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
     where: whereClause,
     include: {
       cuenta: { select: { razonSocial: true } },
-      responsable: { select: { id: true, name: true, email: true } },
+      responsable: { select: { id: true, name: true, email: true, role: true } },
     },
     orderBy: { fechaVencimiento: "asc" },
   });
@@ -769,6 +771,11 @@ export async function ejecutarBarridoAlertasSLAAction(): Promise<{
 
     for (const t of tareasPendientes) {
       if (t.responsable?.email) {
+        // Excluir al rol ADMIN de alertas individuales si está configurado
+        if (config.excluirAdminDeAlertas && t.responsable.role === "ADMIN") {
+          continue;
+        }
+
         const key = t.responsable.email.toLowerCase();
         const actual = porEjecutivo.get(key) || {
           nombre: t.responsable.name,

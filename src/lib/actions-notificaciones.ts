@@ -44,12 +44,13 @@ export async function obtenerNotificacionesUsuarioAction(): Promise<Notificacion
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
   const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  // Cada usuario comercial ve exclusivamente sus propias alertas; ADMIN supervisa todas
+  // Ejecutivos ven exclusivamente sus propias alertas; ADMIN, Gerencia General y Comercial supervisan todas
   const whereClause: Record<string, unknown> = {
     estado: "pendiente",
   };
 
-  if (currentUser.role !== "ADMIN") {
+  const rolesSupervision = ["ADMIN", "GERENTE_GENERAL", "GERENTE_COMERCIAL"];
+  if (!rolesSupervision.includes(currentUser.role)) {
     whereClause.responsableId = currentUser.id;
   }
 

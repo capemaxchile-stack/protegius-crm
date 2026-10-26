@@ -13,13 +13,14 @@ import {
 import { formatearUF, formatearFecha } from "@/lib/constants";
 import { cambiarEstadoPropuestaAction } from "@/lib/actions-propuestas";
 import { BotonImprimir } from "./BotonImprimir";
+import { BotonEliminarPropuesta } from "./BotonEliminarPropuesta";
 
 export default async function PropuestaDetallePage({
   params,
 }: {
   params: { id: string };
 }) {
-  await requireAuth();
+  const currentUser = await requireAuth();
 
   const propuesta = await prisma.propuesta.findUnique({
     where: { id: params.id },
@@ -87,6 +88,13 @@ export default async function PropuestaDetallePage({
         {/* Status update actions */}
         <div className="flex items-center gap-2">
           <BotonImprimir />
+
+          {currentUser.role === "ADMIN" && (
+            <BotonEliminarPropuesta
+              propuestaId={propuesta.id}
+              numero={propuesta.numero}
+            />
+          )}
 
           {propuesta.estado === "borrador" && (
             <form

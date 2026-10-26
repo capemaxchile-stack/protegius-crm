@@ -548,6 +548,14 @@ export function AuditoriaSLAView({
                     />
                     <span>Escalar a supervisores cuando el SLA esté vencido</span>
                   </label>
+                  <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer font-semibold pt-0.5">
+                    <input
+                      type="checkbox"
+                      name="excluirAdminDeAlertas"
+                      defaultChecked={config.excluirAdminDeAlertas ?? true}
+                    />
+                    <span>🛡️ Excluir al Administrador de alertas operativas (solo administra el sistema)</span>
+                  </label>
                 </div>
 
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2.5">

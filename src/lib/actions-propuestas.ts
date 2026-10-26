@@ -251,3 +251,39 @@ export async function toggleActivoServicioAction(servicioId: string, estadoActua
 
   revalidatePath("/propuestas/catalogo");
 }
+
+/**
+ * Elimina permanentemente una propuesta comercial (Acción exclusiva para Administradores).
+ */
+export async function eliminarPropuestaAction(
+  propuestaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { requireAdmin } = await import("@/lib/auth");
+    await requireAdmin();
+
+    const propuesta = await prisma.propuesta.findUnique({
+      where: { id: propuestaId },
+    });
+
+    if (!propuesta) {
+      return { success: false, error: "Propuesta no encontrada." };
+    }
+
+    await prisma.propuesta.delete({
+      where: { id: propuestaId },
+    });
+
+    revalidatePath("/propuestas");
+    revalidatePath("/oportunidades/pipeline");
+    revalidatePath(`/cuentas/${propuesta.cuentaId}`);
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error eliminando propuesta:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Error al eliminar la propuesta.",
+    };
+  }
+}

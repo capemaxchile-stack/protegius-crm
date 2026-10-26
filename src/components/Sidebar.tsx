@@ -18,7 +18,7 @@ import {
   BarChart3,
   ShieldAlert,
 } from "lucide-react";
-import { USER_ROLE_LABELS, UserRole } from "@/lib/constants";
+import { USER_ROLE_LABELS, UserRole, PERMISOS_DEFAULT_POR_ROL } from "@/lib/constants";
 import { IndicadoresEconomicos } from "./IndicadoresEconomicos";
 import { ControlesAccesibilidad } from "./ControlesAccesibilidad";
 
@@ -29,9 +29,11 @@ interface SidebarProps {
     email: string;
     role: UserRole;
   };
+  allowedMenuIds?: string[];
 }
 
 interface NavigationItem {
+  id: string;
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -39,17 +41,19 @@ interface NavigationItem {
   isActive?: (path: string) => boolean;
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, allowedMenuIds }: SidebarProps) {
   const pathname = usePathname();
 
-  const navigation: NavigationItem[] = [
+  const allItems: NavigationItem[] = [
     {
+      id: "prospeccion",
       name: "🎯 Prospección & Llamados",
       href: "/prospeccion",
       icon: PhoneCall,
       isActive: (path: string) => path === "/prospeccion" || path.startsWith("/prospeccion/"),
     },
     {
+      id: "pipeline",
       name: "Pipeline Comercial",
       href: "/oportunidades/pipeline",
       icon: TrendingUp,
@@ -61,30 +65,32 @@ export function Sidebar({ user }: SidebarProps) {
         (path.startsWith("/oportunidades/") && !path.startsWith("/oportunidades/gestiones")),
     },
     {
+      id: "reuniones",
       name: "Reuniones & Agenda",
       href: "/reuniones",
       icon: Calendar,
       isActive: (path: string) => path === "/reuniones" || path.startsWith("/reuniones/"),
     },
     {
+      id: "auditoria",
       name: "Auditoría SLA & Alertas",
       href: "/auditoria",
       icon: ShieldAlert,
       isActive: (path: string) => path === "/auditoria" || path.startsWith("/auditoria/"),
     },
-    { name: "Empresas & Cuentas", href: "/cuentas", icon: Building2 },
-    { name: "Directorio Contactos", href: "/contactos", icon: Users2 },
-    { name: "Propuestas en UF", href: "/propuestas", icon: FileSpreadsheet },
-    { name: "Reportes de Gestión", href: "/reportes", icon: BarChart3 },
-    { name: "Contratos", href: "/contratos", icon: FileCheck2 },
-    { name: "Onboarding", href: "/onboarding", icon: UserCheck },
-    { name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
+    { id: "cuentas", name: "Empresas & Cuentas", href: "/cuentas", icon: Building2 },
+    { id: "contactos", name: "Directorio Contactos", href: "/contactos", icon: Users2 },
+    { id: "propuestas", name: "Propuestas en UF", href: "/propuestas", icon: FileSpreadsheet },
+    { id: "reportes", name: "Reportes de Gestión", href: "/reportes", icon: BarChart3 },
+    { id: "contratos", name: "Contratos", href: "/contratos", icon: FileCheck2 },
+    { id: "onboarding", name: "Onboarding", href: "/onboarding", icon: UserCheck },
+    { id: "usuarios", name: "Usuarios y Accesos", href: "/usuarios", icon: UserCog },
+    { id: "ayuda", name: "Centro de Ayuda", href: "/ayuda", icon: BookOpen },
   ];
 
-  // Solo administradores ven gestión de usuarios
-  if (user.role === "ADMIN") {
-    navigation.push({ name: "Usuarios y Accesos", href: "/usuarios", icon: UserCog });
-  }
+  // Resolver permisos permitidos para este usuario
+  const permisos = allowedMenuIds || PERMISOS_DEFAULT_POR_ROL[user.role] || [];
+  const navigation = allItems.filter((item) => permisos.includes(item.id));
 
   return (
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0 text-slate-700 dark:text-slate-300 print:hidden transition-colors duration-150">

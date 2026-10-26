@@ -16,6 +16,8 @@ export interface AlertasConfig {
   notificarAlAsignar: boolean;
   notificarPorVencer: boolean;
   notificarVencidas: boolean;
+  excluirAdminDeAlertas: boolean;
+  rolesNotificados: string[];
 }
 
 const DEFAULT_CONFIG: AlertasConfig = {
@@ -34,6 +36,8 @@ const DEFAULT_CONFIG: AlertasConfig = {
   notificarAlAsignar: true,
   notificarPorVencer: true,
   notificarVencidas: true,
+  excluirAdminDeAlertas: true,
+  rolesNotificados: ["GERENTE_COMERCIAL", "GERENTE_GENERAL", "COMERCIAL"],
 };
 
 function getConfigFilePath(): string {

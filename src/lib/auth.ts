@@ -78,6 +78,8 @@ export async function getCurrentUser() {
       email: true,
       name: true,
       role: true,
+      telefono: true,
+      cargo: true,
       active: true,
       createdAt: true,
     },
@@ -98,6 +100,18 @@ export async function requireAuth() {
 export async function requireAdmin() {
   const user = await requireAuth();
   if (user.role !== "ADMIN") {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
+export async function requireManagement() {
+  const user = await requireAuth();
+  if (
+    user.role !== "ADMIN" &&
+    user.role !== "GERENTE_GENERAL" &&
+    user.role !== "GERENTE_COMERCIAL"
+  ) {
     throw new Error("FORBIDDEN");
   }
   return user;
