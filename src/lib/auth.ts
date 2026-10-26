@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { UserRole } from "./constants";
 import { prisma } from "./prisma";
+import { ensureDatabaseSchema } from "./ensure-db";
 
 const COOKIE_NAME = "protegius_session";
 const SECRET_KEY = new TextEncoder().encode(
@@ -70,6 +71,8 @@ export async function destroySession() {
 export async function getCurrentUser() {
   const session = await getSession();
   if (!session) return null;
+
+  await ensureDatabaseSchema();
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
