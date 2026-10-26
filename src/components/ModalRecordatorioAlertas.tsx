@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertTriangle,
-  Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
-  PhoneCall,
   X,
   ExternalLink,
 } from "lucide-react";
@@ -20,11 +19,14 @@ import {
 import { formatearFechaHora } from "@/lib/constants";
 
 export function ModalRecordatorioAlertas() {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [resumen, setResumen] = useState<NotificacionesResumen | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    setMounted(true);
+
     // Verificar si ya se mostró en esta sesión de navegación
     const yaMostrado = sessionStorage.getItem("protegius_alerta_ingreso_vista");
 
@@ -57,7 +59,7 @@ export function ModalRecordatorioAlertas() {
     });
   };
 
-  if (!open || !resumen) return null;
+  if (!mounted || !open || !resumen) return null;
 
   const itemsUrgentes = resumen.items.filter(
     (item) => item.esVencida || item.esHoy
@@ -65,9 +67,9 @@ export function ModalRecordatorioAlertas() {
 
   if (itemsUrgentes.length === 0) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 max-h-[88vh] flex flex-col">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 max-h-[85vh] flex flex-col my-auto">
         {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -79,13 +81,14 @@ export function ModalRecordatorioAlertas() {
                 Recordatorio de Compromisos SLA
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Tienes tareas comerciales vencidas o programas para hoy que requieren atención.
+                Tienes tareas comerciales vencidas o programadas para hoy que requieren atención.
               </p>
             </div>
           </div>
           <button
             onClick={handleCerrar}
             className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            title="Cerrar recordatorio"
           >
             <X className="w-4 h-4" />
           </button>
@@ -154,7 +157,9 @@ export function ModalRecordatorioAlertas() {
                     </span>
                   )}
                   {item.responsableName && (
-                    <span>Resp: <strong>{item.responsableName}</strong></span>
+                    <span>
+                      Resp: <strong>{item.responsableName}</strong>
+                    </span>
                   )}
                 </div>
               </div>
@@ -208,4 +213,6 @@ export function ModalRecordatorioAlertas() {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
