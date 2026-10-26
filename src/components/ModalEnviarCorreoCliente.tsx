@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Mail, Send, X, Check, Sparkles } from "lucide-react";
+import { Mail, Send, X, Sparkles } from "lucide-react";
 import { PlantillaCorreo } from "@/lib/plantillas-correo-types";
 import { enviarCorreoClienteAction } from "@/lib/plantillas-correo";
 

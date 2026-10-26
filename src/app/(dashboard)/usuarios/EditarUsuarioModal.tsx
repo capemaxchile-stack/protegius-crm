@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { editarUsuarioAction, UserActionState } from "./actions";
 import { Edit2, X, Mail, Lock, User, Shield, Eye, EyeOff, KeyRound, Check, Copy } from "lucide-react";
-import { USER_ROLE_LABELS, USER_ROLES, UserRole } from "@/lib/constants";
+import { USER_ROLE_LABELS, UserRole } from "@/lib/constants";
 
 interface EditarUsuarioModalProps {
   user: {

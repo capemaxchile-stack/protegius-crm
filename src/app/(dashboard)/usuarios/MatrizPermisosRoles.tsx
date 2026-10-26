@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { UserRole, USER_ROLE_LABELS, MENUS_SISTEMA, PERMISOS_DEFAULT_POR_ROL } from "@/lib/constants";
 import { MatrizPermisos, guardarMatrizPermisosAction } from "@/lib/permisos-roles";
-import { Shield, Check, Save, RotateCcw, Lock } from "lucide-react";
+import { Check, Save, RotateCcw, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface MatrizPermisosRolesProps {
